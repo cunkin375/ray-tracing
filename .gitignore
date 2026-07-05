@@ -1,0 +1,5 @@
+build
+vendor/glm
+vendor/googletest
+.clang-format
+.clangd
