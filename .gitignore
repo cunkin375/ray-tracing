@@ -3,3 +3,5 @@ vendor/glm
 vendor/googletest
 .clang-format
 .clangd
+AutoBuildAndRun.ps1
+image.ppm
