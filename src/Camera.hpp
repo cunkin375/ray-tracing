@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "Color.hpp"
+#include "ImageColor.hpp"
 #include "Hittable.hpp"
 #include "Math/Vector.hpp"
 #include "Sphere.hpp"
@@ -25,7 +25,7 @@ public:
         : aspect_ratio{aspect_ratio}, image_width{image_width} {}
 
     void RenderPass(const HittableList &world) {
-        Initialize();
+        InitializePass();
 
         std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
@@ -53,7 +53,7 @@ private:
                alpha * /* light blue */ dColor{0.5, 0.7, 1.0};
     }
 
-    void Initialize() {
+    void InitializePass() {
         image_height = std::size_t(image_width / aspect_ratio);
         // image height must at least be 1
         image_height = (image_height < 1) ? 1 : image_height;
