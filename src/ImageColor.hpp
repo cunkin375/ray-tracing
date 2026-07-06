@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+namespace ImageColor {
+
 constexpr void WriteColor(std::ostream &out, const dColor &pixel_color) {
     auto r = pixel_color.r;
     auto g = pixel_color.g;
@@ -17,3 +19,5 @@ constexpr void WriteColor(std::ostream &out, const dColor &pixel_color) {
 
     out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
 }
+
+} // namespace ImageColor
