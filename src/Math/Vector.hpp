@@ -65,20 +65,20 @@ struct VectorOperations {
     /* vector -= vector */
     constexpr Derived &operator-=(const Derived &other) {
         auto &self = static_cast<Derived &>(*this);
-        auto add_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        auto subtract_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
             ((self[Is] -= other[Is]), ...);
         };
-        add_vector(std::make_index_sequence<N>{});
+        subtract_vector(std::make_index_sequence<N>{});
         return self;
     }
 
     /* vector *= vector */
     constexpr Derived &operator*=(const Derived &other) {
         auto &self = static_cast<Derived &>(*this);
-        auto add_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        auto multiply_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
             ((self[Is] *= other[Is]), ...);
         };
-        add_vector(std::make_index_sequence<N>{});
+        multiply_vector(std::make_index_sequence<N>{});
         return self;
     }
 
@@ -90,7 +90,7 @@ struct VectorOperations {
         return self;
     }
 
-    /* vector += scalar */
+    /* vector -= scalar */
     constexpr Derived &operator-=(T scalar) {
         auto &self = static_cast<Derived &>(*this);
         auto subtract_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
@@ -104,7 +104,7 @@ struct VectorOperations {
     constexpr Derived &operator*=(T scalar) {
         auto &self = static_cast<Derived &>(*this);
         auto multiply_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((self[Is] *= 1/scalar), ...);
+            ((self[Is] *= scalar), ...);
         };
         multiply_scalar(std::make_index_sequence<N>{});
         return self;
@@ -114,7 +114,7 @@ struct VectorOperations {
     constexpr Derived &operator/=(T scalar) {
         auto &self = static_cast<Derived &>(*this);
         auto divide_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((self[Is] /= scalar), ...);
+            ((self[Is] *= 1/scalar), ...);
         };
         divide_scalar(std::make_index_sequence<N>{});
         return self;
@@ -184,6 +184,13 @@ struct VectorOperations {
         return result;
     }
 
+    /* scalar * vector */
+    friend constexpr Derived operator*(T scalar, const Derived &right_vector) {
+        auto result = right_vector;
+        result *= scalar;
+        return result;
+    }
+
     /* vector / scalar */
     friend constexpr Derived operator/(const Derived &left_vector, T scalar) {
         auto result = left_vector;
@@ -191,12 +198,6 @@ struct VectorOperations {
         return result;
     }
 
-    /* scalar * vector */
-    friend constexpr Derived operator*(T scalar, const Derived &right_vector) {
-        auto result = right_vector;
-        result *= scalar;
-        return result;
-    }
 
     /* -vector */
     friend constexpr Derived operator-(const Derived &right_vector) {
@@ -336,7 +337,7 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
 };
 
 template <Number T>
-struct Color<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public Math3D<Vector<T, 3zu>, T> {
+struct Color<T, 3zu> : public VectorOperations<Color<T, 3zu>, T, 3zu>, public Math3D<Color<T, 3zu>, T> {
     T r{}, g{}, b{};
 
     constexpr Color() = default;
