@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.1.0)
-project(path-tracer)
+project(ray-tracing)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
