@@ -342,6 +342,7 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
     constexpr Vector() = default;
     constexpr Vector(T _x, T _y, T _z) : x{_x}, y{_y}, z{_z} {}
     constexpr Vector(T scalar) : x{scalar}, y{scalar}, z{scalar} {}
+    constexpr Vector(Color<T, 3zu> color) : x{color.r}, y{color.g}, z{color.b} {}
 
     [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept {
         return (x == other.x && y == other.y && z == other.z);
@@ -367,6 +368,8 @@ struct Color<T, 3zu> : public VectorOperations<Color<T, 3zu>, T, 3zu>, public Ma
 
     constexpr Color() = default;
     constexpr Color(T _r, T _g, T _b) : r{_r}, g{_g}, b{_b} {}
+    constexpr Color(T scalar) : r{scalar}, g{scalar}, b{scalar} {}
+    constexpr Color(Vector<T, 3zu> vector) : r{vector.x}, g{vector.y}, b{vector.z} {}
 
     [[nodiscard]] constexpr bool is_equal(const Color &other) const noexcept {
         return (r == other.r && g == other.g && b == other.b);
