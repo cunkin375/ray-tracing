@@ -26,53 +26,66 @@ public:
 
 struct Hittable {
 private:
-    void *data_pointer = nullptr;
+    void *data_pointer_ = nullptr;
 
-    std::optional<HitRecord> (*hit_function)(const void *, const dRay &ray, f64 ray_tmin,
-                                             f64 ray_tmax) = nullptr;
-    void *(*copy_function)(const void *) = nullptr;
-    void (*destroy_function)(void *) = nullptr;
+    std::optional<HitRecord> (*hit_function_pointer_)(const void *, const dRay &ray, f64 ray_tmin,
+                                                      f64 ray_tmax) = nullptr;
+    void *(*copy_function_pointer_)(const void *) = nullptr;
+    void (*destroy_function_pointer_)(void *) = nullptr;
 
 public:
     template <typename Derived>
     Hittable(Derived object) {
-        data_pointer = new Derived(std::move(object));
+        data_pointer_ = new Derived(std::move(object));
 
-        hit_function = [](const void *pointer, const dRay &ray, f64 ray_tmin, f64 ray_tmax) {
-            static_cast<const Derived *>(pointer)->Hit(ray, ray_tmin, ray_tmax);
+        hit_function_pointer_ = [](const void *pointer, const dRay &ray, f64 ray_tmin,
+                                   f64 ray_tmax) -> std::optional<HitRecord> {
+            return static_cast<const Derived *>(pointer)->Hit(ray, ray_tmin, ray_tmax);
         };
 
-        copy_function = [](const void *pointer) {
-            return new Derived(static_cast<const Derived *>(pointer));
+        copy_function_pointer_ = [](const void *pointer) -> void * {
+            return new Derived(*static_cast<const Derived *>(pointer));
         };
 
-        destroy_function = [](void *pointer) { delete static_cast<Derived *>(pointer); };
+        destroy_function_pointer_ = [](void *pointer) { delete static_cast<Derived *>(pointer); };
     }
 
     Hittable(const Hittable &other) {
-        if (other.data_pointer) {
-            data_pointer = other.copy_function(other.data_pointer);
-            hit_function = other.hit_function;
-            copy_function = other.copy_function;
-            destroy_function = other.destroy_function;
+        if (other.data_pointer_) {
+            data_pointer_ = other.copy_function_pointer_(other.data_pointer_);
+            hit_function_pointer_ = other.hit_function_pointer_;
+            copy_function_pointer_ = other.copy_function_pointer_;
+            destroy_function_pointer_ = other.destroy_function_pointer_;
         }
     }
 
-    Hittable &operator=(const Hittable &other) { std::swap(data_pointer, other.data_pointer); }
+    Hittable &operator=(Hittable &other) {
+        std::swap(data_pointer_, other.data_pointer_);
+        std::swap(hit_function_pointer_, other.hit_function_pointer_);
+        std::swap(copy_function_pointer_, other.copy_function_pointer_);
+        std::swap(destroy_function_pointer_, other.destroy_function_pointer_);
+        return *this;
+    }
 
     Hittable(Hittable &&other) noexcept
-        : data_pointer{other.data_pointer}, hit_function{other.hit_function},
-          copy_function{other.copy_function}, destroy_function{other.destroy_function} {
-        other.data_pointer = nullptr;
+        : data_pointer_{other.data_pointer_}, hit_function_pointer_{other.hit_function_pointer_},
+          copy_function_pointer_{other.copy_function_pointer_},
+          destroy_function_pointer_{other.destroy_function_pointer_} {
+        other.data_pointer_ = nullptr;
     }
 
     ~Hittable() {
-        if (data_pointer && destroy_function) { destroy_function(data_pointer); }
+        if (data_pointer_ && destroy_function_pointer_) { destroy_function_pointer_(data_pointer_); }
     }
 
     std::optional<HitRecord> Hit(const dRay &ray, f64 ray_tmin, f64 ray_tmax) const {
-        if (data_pointer && hit_function) return hit_function(data_pointer, ray, ray_tmin, ray_tmax);
-        else return std::nullopt;
+        if (data_pointer_ && hit_function_pointer_)
+            return static_cast<std::optional<HitRecord>>(
+                hit_function_pointer_(data_pointer_, ray, ray_tmin, ray_tmax));
+        else {
+            Log::Error("Received nullopt in Hittable::Hit!");
+            return std::nullopt;
+        }
     }
 };
 
