@@ -7,19 +7,24 @@
 #include "Color.hpp"
 #include "Ray.hpp"
 
-bool HitSphere(const dPoint3 &center, f64 radius, const dRay &ray) {
+f64 HitSphere(const dPoint3 &center, f64 radius, const dRay &ray) {
     dVector3 oc = center - ray.origin;
-    auto a = dVector3::DotProduct(ray.direction, ray.direction);
-    auto b = -2.0 * dVector3::DotProduct(ray.direction, oc);
-    auto c = dVector3::DotProduct(oc, oc) - radius * radius;
-    auto discriminant = b * b - 4 * a * c;
-    return (discriminant >= 0);
+    f64 a = dVector3::DotProduct(ray.direction, ray.direction);
+    f64 b = -2.0 * dVector3::DotProduct(ray.direction, oc);
+    f64 c = dVector3::DotProduct(oc, oc) - radius * radius;
+    f64 discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) return -1.0;
+    else return (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
 
 dColor RayToColor(const dRay &ray) {
-    if (HitSphere(dPoint3{0, 0, -1}, 0.5, ray)) return {1, 0, 0};
+    f64 t = HitSphere(dPoint3{0, 0, -1}, 0.5, ray);
+    if (t > 0.0) {
+        dVector3 N = dVector3::UnitVector(ray.at(t) - dVector3{0, 0, -1});
+        return 0.5 * dColor{N.x + 1, N.y + 1, N.z + 1};
+    }
     dVector3 unit_direction = dVector3::Normalize(ray.direction);
-    auto alpha = 0.5 * (unit_direction.y + 1.0);
+    f64 alpha = 0.5 * (unit_direction.y + 1.0);
     return (1.0 - alpha) * /* white */ dColor{1.0, 1.0, 1.0} + alpha * /* light blue */ dColor{0.5, 0.7, 1.0};
 }
 
@@ -28,7 +33,7 @@ int main() {
     // Image
 
     auto image_width{400zu};
-    auto aspect_ratio{16.0 / 9.0};
+    f64 aspect_ratio{16.0 / 9.0};
 
     auto image_height = std::size_t(image_width / aspect_ratio);
     // image height must at least be 1
@@ -36,9 +41,9 @@ int main() {
 
     // Camera
 
-    auto focal_length = 1.0;
-    auto viewport_height = 2.0;
-    auto viewport_width = viewport_height * (f64(image_width) / image_height);
+    f64 focal_length = 1.0;
+    f64 viewport_height = 2.0;
+    f64 viewport_width = viewport_height * (f64(image_width) / image_height);
     auto camera_center = dPoint3{};
 
     auto viewport_u = dVector3{viewport_width, 0, 0};
@@ -50,7 +55,7 @@ int main() {
     auto viewport_upper_left = camera_center - dVector3{0, 0, focal_length} - viewport_u / 2 - viewport_v / 2;
     auto pixel100_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
     for (auto j{0zu}; j < image_height; j++) {
         // Log::Info("\rScanlines remaining: {}", (image_height - j));
