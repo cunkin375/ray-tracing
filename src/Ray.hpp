@@ -10,8 +10,8 @@ struct Ray {
 
     Ray(const Point3 &_origin, const Vector3 &_direction) : origin{_origin}, direction{_direction} {}
 
-    Point3 at(double t) const {
-        return origin + t * direction;
+    Point3 At(double scalar) const {
+        return origin + scalar * direction;
     }
 
 };
@@ -24,7 +24,7 @@ struct dRay {
 
     dRay(const dPoint3 &_origin, const dVector3 &_direction) : origin{_origin}, direction{_direction} {}
 
-    dPoint3 at(double t) const {
+    dPoint3 At(double t) const {
         return origin + t * direction;
     }
 
