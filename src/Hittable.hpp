@@ -110,8 +110,6 @@ public:
                 hit_anything = true;
                 closest_so_far = temp_record->scalar;
                 return_record = temp_record.value();
-            } else {
-                Log::Error("Received nullopt from object.Hit!");
             }
         }
 

@@ -1,27 +1,24 @@
+#include <bit>
 #include <iostream>
+#include <limits>
+#include <numbers>
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 #include "Util/Log.hpp"
 
 #include "Color.hpp"
+#include "Hittable.hpp"
 #include "Ray.hpp"
+#include "Sphere.hpp"
 
-f64 HitSphere(const dPoint3 &center, f64 radius, const dRay &ray) {
-    dVector3 oc = center - ray.origin;
-    f64 a = dVector3::DotProduct(ray.direction, ray.direction);
-    f64 b = -2.0 * dVector3::DotProduct(ray.direction, oc);
-    f64 c = dVector3::DotProduct(oc, oc) - radius * radius;
-    f64 discriminant = b * b - 4 * a * c;
-    if (discriminant < 0) return -1.0;
-    else return (-b - std::sqrt(discriminant)) / (2.0 * a);
-}
+// constants
+constexpr f64 infitnity = std::numeric_limits<f64>::infinity();
+constexpr f64 pi = std::numbers::pi;
 
-dColor RayToColor(const dRay &ray) {
-    f64 t = HitSphere(dPoint3{0, 0, -1}, 0.5, ray);
-    if (t > 0.0) {
-        dVector3 N = dVector3::UnitVector(ray.at(t) - dVector3{0, 0, -1});
-        return 0.5 * dColor{N.x + 1, N.y + 1, N.z + 1};
+dColor RayToColor(const dRay &ray, const HittableList &world) {
+    if (auto record = world.Hit(ray, 0, infitnity); record != std::nullopt) {
+        return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
     }
     dVector3 unit_direction = dVector3::Normalize(ray.direction);
     f64 alpha = 0.5 * (unit_direction.y + 1.0);
@@ -31,7 +28,6 @@ dColor RayToColor(const dRay &ray) {
 int main() {
 
     // Image
-
     auto image_width{400zu};
     f64 aspect_ratio{16.0 / 9.0};
 
@@ -39,8 +35,16 @@ int main() {
     // image height must at least be 1
     image_height = (image_height < 1) ? 1 : image_height;
 
-    // Camera
+    // World
+    using Radius = f64;
+    auto center_sphere = Sphere{dPoint3{0, 0, -1}, Radius{0.5}};
+    auto big_bottom_sphere = Sphere{dPoint3{0, -100.5, -1}, Radius{100}};
 
+    auto world = HittableList{};
+    world.Add(center_sphere);
+    world.Add(big_bottom_sphere);
+
+    // Camera
     f64 focal_length = 1.0;
     f64 viewport_height = 2.0;
     f64 viewport_width = viewport_height * (f64(image_width) / image_height);
@@ -63,7 +67,7 @@ int main() {
             auto pixel_center = pixel100_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
             auto ray_direction = pixel_center - camera_center;
             auto ray = dRay{camera_center, ray_direction};
-            auto pixel_color = RayToColor(ray);
+            auto pixel_color = RayToColor(ray, world);
             WriteColor(std::cout, pixel_color);
         }
     }
