@@ -1,11 +1,12 @@
 #pragma once
 #include <array>
 #include <cmath>
-#include <concepts>
 #include <cstdint>
 #include <format>
 #include <immintrin.h>
 #include <utility>
+
+#include "Number.hpp"
 
 /** Linear Algebra Library made to experiment with template metaprogramming */
 // NOTE: As of C++26, <linalg> does a lot of this for you (See https://en.cppreference.com/cpp/numeric/linalg)
@@ -41,8 +42,6 @@
 namespace Math {
 
 // Numbers are either floating points or integral types
-template <typename T>
-concept Number = std::floating_point<T> || std::integral<T>;
 
 template <Number T, std::size_t N>
 struct Vector;
@@ -105,9 +104,19 @@ struct VectorOperations {
     constexpr Derived &operator*=(T scalar) {
         auto &self = static_cast<Derived &>(*this);
         auto multiply_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((self[Is] *= scalar), ...);
+            ((self[Is] *= 1/scalar), ...);
         };
         multiply_scalar(std::make_index_sequence<N>{});
+        return self;
+    }
+
+    /* vector /= scalar */
+    constexpr Derived &operator/=(T scalar) {
+        auto &self = static_cast<Derived &>(*this);
+        auto divide_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((self[Is] /= scalar), ...);
+        };
+        divide_scalar(std::make_index_sequence<N>{});
         return self;
     }
 
@@ -175,6 +184,13 @@ struct VectorOperations {
         return result;
     }
 
+    /* vector / scalar */
+    friend constexpr Derived operator/(const Derived &left_vector, T scalar) {
+        auto result = left_vector;
+        result /= scalar;
+        return result;
+    }
+
     /* scalar * vector */
     friend constexpr Derived operator*(T scalar, const Derived &right_vector) {
         auto result = right_vector;
@@ -231,7 +247,8 @@ struct Vector : public VectorOperations<Vector<T, N>, T, N> {
 
     [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept { return data == other.data; }
 
-    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not be used / is not a priority
+    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
+    // be used / is not a priority
     [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
         return data <=> other.data;
     }
@@ -257,7 +274,8 @@ struct Vector<T, 2zu> : public VectorOperations<Vector<T, 2zu>, T, 2zu> {
         return (x == other.x && y == other.y);
     }
 
-    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not be used / is not a priority
+    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
+    // be used / is not a priority
     [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
         return (x <=> other.x && y <=> other.y);
     }
@@ -303,7 +321,8 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
         return (x == other.x && y == other.y && z == other.z);
     }
 
-    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not be used / is not a priority
+    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
+    // be used / is not a priority
     [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
         return (x <=> other.x && y <=> other.y && z <=> other.z);
     }
@@ -327,7 +346,8 @@ struct Color<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public M
         return (r == other.r && g == other.g && b == other.b);
     }
 
-    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not be used / is not a priority
+    // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
+    // be used / is not a priority
     [[nodiscard]] constexpr bool three_way_compare(const Color &other) const noexcept {
         return (r <=> other.r && g <=> other.g && b <=> other.b);
     }
@@ -350,6 +370,12 @@ using Vector3D = Vector<T, 3zu>;
 template <Number T>
 using Color3D = Color<T, 3zu>;
 
+template <Number T>
+using Point2D = Vector<T, 2zu>;
+
+template <Number T>
+using Point3D = Vector<T, 3zu>;
+
 } // namespace Math
 
 template <Math::Number T, std::size_t N>
@@ -371,7 +397,23 @@ using iVector3 = Math::Vector3D<std::int32_t>;
 using uVector2 = Math::Vector2D<std::uint32_t>;
 using uVector3 = Math::Vector3D<std::uint32_t>;
 
+using dVector2 = Math::Vector2D<double>;
+using dVector3 = Math::Vector3D<double>;
+
 using Vector2 = Math::Vector2D<float>;
 using Vector3 = Math::Vector3D<float>;
 
+using iPoint2 = Math::Point2D<std::int32_t>;
+using iPoint3 = Math::Point3D<std::int32_t>;
+
+using uPoint2 = Math::Point2D<std::uint32_t>;
+using uPoint3 = Math::Point3D<std::uint32_t>;
+
+using dPoint2 = Math::Point2D<double>;
+using dPoint3 = Math::Point3D<double>;
+
+using Point2 = Math::Point2D<float>;
+using Point3 = Math::Point3D<float>;
+
 using Color = Math::Color3D<float>;
+using dColor = Math::Color3D<double>;
