@@ -39,6 +39,12 @@ struct Interval {
 
     constexpr bool Surrounds(T x) const { return lower < x && x < upper; }
 
+    constexpr T clamp(T number) const {
+        if (number < lower) return lower;
+        if (number > upper) return upper;
+        return number;
+    }
+
     static constexpr Interval Empty() { return {PositiveInfinity(), NegativeInfinity()}; }
     static constexpr Interval Universe() { return {NegativeInfinity(), PositiveInfinity()}; }
 };
