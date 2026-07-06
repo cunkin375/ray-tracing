@@ -7,7 +7,17 @@
 #include "Color.hpp"
 #include "Ray.hpp"
 
+bool HitSphere(const dPoint3 &center, f64 radius, const dRay &ray) {
+    dVector3 oc = center - ray.origin;
+    auto a = dVector3::DotProduct(ray.direction, ray.direction);
+    auto b = -2.0 * dVector3::DotProduct(ray.direction, oc);
+    auto c = dVector3::DotProduct(oc, oc) - radius * radius;
+    auto discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
 dColor RayToColor(const dRay &ray) {
+    if (HitSphere(dPoint3{0, 0, -1}, 0.5, ray)) return {1, 0, 0};
     dVector3 unit_direction = dVector3::Normalize(ray.direction);
     auto alpha = 0.5 * (unit_direction.y + 1.0);
     return (1.0 - alpha) * /* white */ dColor{1.0, 1.0, 1.0} + alpha * /* light blue */ dColor{0.5, 0.7, 1.0};
@@ -35,7 +45,7 @@ int main() {
     auto viewport_v = dVector3{0, -viewport_height, 0};
 
     auto pixel_delta_u = viewport_u / image_width;
-    auto pixel_delta_v = viewport_v / image_width;
+    auto pixel_delta_v = viewport_v / image_height;
 
     auto viewport_upper_left = camera_center - dVector3{0, 0, focal_length} - viewport_u / 2 - viewport_v / 2;
     auto pixel100_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
