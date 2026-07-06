@@ -114,7 +114,7 @@ struct VectorOperations {
     constexpr Derived &operator/=(T scalar) {
         auto &self = static_cast<Derived &>(*this);
         auto divide_scalar = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((self[Is] *= 1/scalar), ...);
+            ((self[Is] *= 1 / scalar), ...);
         };
         divide_scalar(std::make_index_sequence<N>{});
         return self;
@@ -198,7 +198,6 @@ struct VectorOperations {
         return result;
     }
 
-
     /* -vector */
     friend constexpr Derived operator-(const Derived &right_vector) {
         auto result{right_vector};
@@ -240,6 +239,25 @@ struct VectorOperations {
         Derived result = vector;
         return result / result.Magnitude();
     }
+
+    constexpr T DotProduct(const Derived &vector) const {
+        const auto &self = static_cast<const Derived &>(*this);
+        T sum{};
+        auto accumulate = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((sum += self[Is] * vector[Is]), ...);
+        };
+        accumulate(std::make_index_sequence<N>{});
+        return sum;
+    }
+
+    static constexpr T DotProduct(const Derived &left_vector, const Derived &right_vector) {
+        T sum{};
+        auto accumulate = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((sum += left_vector[Is] * right_vector[Is]), ...);
+        };
+        accumulate(std::make_index_sequence<N>{});
+        return sum;
+    }
 };
 
 // Primary template for arbitrary N
@@ -249,7 +267,9 @@ struct Vector : public VectorOperations<Vector<T, N>, T, N> {
 
     constexpr Vector() = default;
 
-    constexpr Vector(T scalar) { data.fill(scalar); }
+    constexpr Vector(T scalar) {
+        data.fill(scalar);
+    }
 
     [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept { return data == other.data; }
 
