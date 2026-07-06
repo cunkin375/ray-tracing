@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "Math/Interval.hpp"
 #include "Math/Vector.hpp"
 #include "Ray.hpp"
 #include "Util/Aliases.hpp"
@@ -28,8 +29,8 @@ struct Hittable {
 private:
     void *data_pointer_ = nullptr;
 
-    std::optional<HitRecord> (*hit_function_pointer_)(const void *, const dRay &ray, f64 ray_tmin,
-                                                      f64 ray_tmax) = nullptr;
+    std::optional<HitRecord> (*hit_function_pointer_)(const void *, const dRay &ray,
+                                                      Math::Interval<f64> ray_interval) = nullptr;
     void *(*copy_function_pointer_)(const void *) = nullptr;
     void (*destroy_function_pointer_)(void *) = nullptr;
 
@@ -38,9 +39,9 @@ public:
     Hittable(Derived object) {
         data_pointer_ = new Derived(std::move(object));
 
-        hit_function_pointer_ = [](const void *pointer, const dRay &ray, f64 ray_tmin,
-                                   f64 ray_tmax) -> std::optional<HitRecord> {
-            return static_cast<const Derived *>(pointer)->Hit(ray, ray_tmin, ray_tmax);
+        hit_function_pointer_ = [](const void *pointer, const dRay &ray,
+                                   Math::Interval<f64> ray_interval) -> std::optional<HitRecord> {
+            return static_cast<const Derived *>(pointer)->Hit(ray, ray_interval);
         };
 
         copy_function_pointer_ = [](const void *pointer) -> void * {
@@ -78,10 +79,10 @@ public:
         if (data_pointer_ && destroy_function_pointer_) { destroy_function_pointer_(data_pointer_); }
     }
 
-    std::optional<HitRecord> Hit(const dRay &ray, f64 ray_tmin, f64 ray_tmax) const {
+    std::optional<HitRecord> Hit(const dRay &ray, Math::Interval<f64> ray_interval) const {
         if (data_pointer_ && hit_function_pointer_)
             return static_cast<std::optional<HitRecord>>(
-                hit_function_pointer_(data_pointer_, ray, ray_tmin, ray_tmax));
+                hit_function_pointer_(data_pointer_, ray, ray_interval));
         else {
             Log::Error("Received nullopt in Hittable::Hit!");
             return std::nullopt;
@@ -100,19 +101,18 @@ public:
 
     void Add(Hittable object) { objects.push_back(std::move(object)); }
 
-    constexpr std::optional<HitRecord> Hit(const dRay &ray, f64 ray_tmin, f64 ray_tmax) const {
+    constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const {
         auto return_record = HitRecord{};
         auto hit_anything = bool{false};
-        auto closest_so_far = ray_tmax;
-
+        auto closest_so_far = ray_interval.upper;
         for (const auto &object : objects) {
-            if (auto temp_record = object.Hit(ray, ray_tmin, closest_so_far); temp_record != std::nullopt) {
+            if (auto temp_record = object.Hit(ray, dInterval{ray_interval.lower, closest_so_far});
+                temp_record != std::nullopt) {
                 hit_anything = true;
                 closest_so_far = temp_record->scalar;
                 return_record = temp_record.value();
             }
         }
-
         return hit_anything ? std::optional{return_record} : std::nullopt;
     }
 };

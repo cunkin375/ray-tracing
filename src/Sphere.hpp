@@ -2,6 +2,7 @@
 
 #include "Hittable.hpp"
 
+#include "Math/Interval.hpp"
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 
@@ -14,7 +15,7 @@ public:
     Sphere(const dPoint3 &center, f64 radius) : center_{center}, radius_{std::fmax(0, radius)} {}
 
     /* Hit function that solves quadratic of dot_product(vector, vector)->double */
-    constexpr std::optional<HitRecord> Hit(const dRay &ray, f64 ray_tmin, f64 ray_tmax) const {
+    constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const {
         dVector3 origin_center = center_ - ray.origin;
         f64 a = ray.direction.MagnitudeSquared();
         f64 h = dVector3::DotProduct(ray.direction, origin_center);
@@ -26,9 +27,9 @@ public:
 
         // find nearest root
         f64 root = (h - square_root_discriminant) / a;
-        if (root <= ray_tmin || ray_tmax <= root) {
+        if (!ray_interval.Surrounds(root)) {
             root = (h + square_root_discriminant) / a;
-            if (root <= ray_tmin || ray_tmax <= root) return std::nullopt;
+            if (!ray_interval.Contains(root)) return std::nullopt;
         }
 
         auto temp_record = HitRecord{};
