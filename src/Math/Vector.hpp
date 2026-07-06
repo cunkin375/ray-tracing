@@ -235,6 +235,11 @@ struct VectorOperations {
         result.Normalize();
         return result;
     }
+
+    static constexpr Derived UnitVector(const Derived &vector) {
+        Derived result = vector;
+        return result / result.Magnitude();
+    }
 };
 
 // Primary template for arbitrary N

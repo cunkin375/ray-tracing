@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Vector.hpp"
-#include "Math/Point.hpp"
 
 struct Ray {
     Point3 origin;

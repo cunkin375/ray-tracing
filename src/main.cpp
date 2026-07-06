@@ -1,12 +1,17 @@
 #include <iostream>
 
+#include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 #include "Util/Log.hpp"
 
 #include "Color.hpp"
 #include "Ray.hpp"
 
-dColor RayToColor(const dRay &r) { return dColor{0, 0, 0}; }
+dColor RayToColor(const dRay &ray) {
+    dVector3 unit_direction = dVector3::Normalize(ray.direction);
+    auto alpha = 0.5 * (unit_direction.y + 1.0);
+    return (1.0 - alpha) * /* white */ dColor{1.0, 1.0, 1.0} + alpha * /* light blue */ dColor{0.5, 0.7, 1.0};
+}
 
 int main() {
 
@@ -38,7 +43,7 @@ int main() {
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     for (auto j{0zu}; j < image_height; j++) {
-        Log::Info("\rScanlines remaining: {}", (image_height - j));
+        // Log::Info("\rScanlines remaining: {}", (image_height - j));
         for (auto i{0zu}; i < image_width; i++) {
             auto pixel_center = pixel100_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
             auto ray_direction = pixel_center - camera_center;
@@ -48,5 +53,5 @@ int main() {
         }
     }
 
-    Log::Info("Hello, world!");
+    // Log::Info("Hello, world!");
 }
