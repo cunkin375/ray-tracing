@@ -1,5 +1,5 @@
 #include "Camera.hpp"
-#include "Hittable.hpp"
+#include "HittableList.hpp"
 #include "Sphere.hpp"
 
 #include "Util/Aliases.hpp"
@@ -10,7 +10,7 @@ int main() {
     auto center_sphere = Sphere{dPoint3{0, 0, -1}, Radius{0.5}};
     auto big_bottom_sphere = Sphere{dPoint3{0, -100.5, -1}, Radius{100}};
 
-    auto world = HittableList{};
+    auto world = World{};
     world.Add(center_sphere);
     world.Add(big_bottom_sphere);
 

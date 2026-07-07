@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hittable.hpp"
+#include "HittableList.hpp"
 
 #include "Math/Interval.hpp"
 #include "Math/Vector.hpp"
@@ -34,10 +34,10 @@ public:
 
         auto temp_record = HitRecord{};
 
-        temp_record.scalar = root;
-        temp_record.point = ray.At(temp_record.scalar);
+        temp_record.distance = root;
+        temp_record.end_point = ray.At(temp_record.distance);
 
-        dVector3 outward_normal = (temp_record.point - center_) / radius_;
+        dVector3 outward_normal = (temp_record.end_point - center_) / radius_;
         temp_record.SetFrontfaceNormal(ray, outward_normal);
 
         return temp_record;

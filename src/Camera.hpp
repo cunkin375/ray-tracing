@@ -2,11 +2,13 @@
 
 #include <iostream>
 
-#include "Hittable.hpp"
+#include "HittableList.hpp"
 #include "ImageColor.hpp"
-#include "Math/Vector.hpp"
 #include "Random.hpp"
 #include "Sphere.hpp"
+#include "Types.hpp"
+
+#include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 
 class Camera {
@@ -24,12 +26,13 @@ private:
     dVector3 pixel_delta_v_;
 
 public:
-    Camera(f64 _aspect_ratio, std::size_t _image_width) : aspect_ratio{_aspect_ratio}, image_width{_image_width} {}
+    Camera(f64 _aspect_ratio, std::size_t _image_width)
+        : aspect_ratio{_aspect_ratio}, image_width{_image_width} {}
 
     Camera(f64 _aspect_ratio, std::size_t _image_width, std::size_t _samples_per_pixel)
         : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel} {}
 
-    void RenderPass(const HittableList &world) {
+    void RenderPass(const World &world) {
         InitializePass();
 
         std::cout << "P3\n" << image_width << " " << image_height_ << "\n255\n";
@@ -45,7 +48,7 @@ public:
         }
     }
 
-    void AntialiasingRenderPass(const HittableList &world) {
+    void AntialiasingRenderPass(const World &world) {
         InitializePass();
 
         std::cout << "P3\n" << image_width << " " << image_height_ << "\n255\n";
@@ -74,7 +77,7 @@ private:
 
     dVector3 SampleSquare() const { return dVector3{Rand::RandomF64() - 0.5, Rand::RandomF64() - 0.5, 0}; }
 
-    dColor RayToColor(const dRay &ray, const HittableList &world) {
+    dColor RayToColor(const dRay &ray, const World &world) {
         if (auto record = world.Hit(ray, dInterval{0, dInterval::PositiveInfinity()});
             record != std::nullopt) {
             return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
