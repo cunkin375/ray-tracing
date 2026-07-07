@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "Number.hpp"
+#include "Random.hpp"
 
 /** Linear Algebra Library made to experiment with template metaprogramming */
 // NOTE: As of C++26, <linalg> does a lot of this for you (See https://en.cppreference.com/cpp/numeric/linalg)
@@ -258,6 +259,33 @@ struct VectorOperations {
         accumulate(std::make_index_sequence<N>{});
         return sum;
     }
+
+    static constexpr Derived GenerateRandomVector() {
+        auto new_vector = Derived{};
+        auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((new_vector[Is] = Rand::GenerateRandomNumber<T>()), ...);
+        };
+        fill_vector(std::make_index_sequence<N>{});
+        return new_vector;
+    }
+
+    static constexpr Derived GenerateRandomVector(T min, T max) {
+        auto new_vector = Derived{};
+        auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((new_vector[Is] = Rand::GenerateRandomNumber<T>(min, max)()), ...);
+        };
+        fill_vector(std::make_index_sequence<N>{});
+        return new_vector;
+    }
+
+    static constexpr Derived GenerateRandomNormalizedVector() {
+        auto new_vector = Derived{};
+        auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            ((new_vector[Is] = Rand::GenerateRandomNormalizedNumber<T>()), ...);
+        };
+        fill_vector(std::make_index_sequence<N>{});
+        return new_vector;
+    }
 };
 
 // Primary template for arbitrary N
@@ -267,9 +295,7 @@ struct Vector : public VectorOperations<Vector<T, N>, T, N> {
 
     constexpr Vector() = default;
 
-    constexpr Vector(T scalar) {
-        data.fill(scalar);
-    }
+    constexpr Vector(T scalar) { data.fill(scalar); }
 
     [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept { return data == other.data; }
 
