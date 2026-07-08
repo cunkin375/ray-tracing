@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HittableList.hpp"
+#include "Material.hpp"
 
 #include "Math/Interval.hpp"
 #include "Math/Vector.hpp"
@@ -10,9 +11,11 @@ class Sphere {
 private:
     dPoint3 center_;
     f64 radius_;
+    Material material_;
 
 public:
-    Sphere(const dPoint3 &center, f64 radius) : center_{center}, radius_{std::fmax(0, radius)} {}
+    Sphere(const dPoint3 &center, f64 radius, Material material_)
+        : center_{center}, radius_{std::fmax(0, radius)}, material_{material_} {}
 
     /* Hit function that solves quadratic with dot_product(direction, origin center)->double */
     constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const {
@@ -39,6 +42,7 @@ public:
 
         dVector3 outward_normal = (temp_record.end_point - center_) / radius_;
         temp_record.SetFrontfaceNormal(ray, outward_normal);
+        temp_record.material_view = &material_;
 
         return temp_record;
     }

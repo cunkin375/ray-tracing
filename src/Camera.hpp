@@ -8,7 +8,6 @@
 class Camera {
 public:
     f64 aspect_ratio{16.0 / 9.0};
-    f64 reflectance{0.5};
     std::size_t image_width{400};
     std::size_t samples_per_pixel{10};
     std::size_t max_depth{10};

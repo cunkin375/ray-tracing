@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Ray.hpp"
+#include "Material.hpp"
 
 #include "Math/Interval.hpp"
 #include "Math/Vector.hpp"
@@ -17,6 +18,7 @@ public:
     dVector3 normal;
     f64 distance;
     bool front_face;
+    const Material *material_view;
 
 public:
     /* Here, the side of a hittable surface from the persepective of the ray is decided at geometry time */

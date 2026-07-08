@@ -71,18 +71,16 @@ dColor Camera::RayToColor(const dRay &ray, std::size_t depth, const World &world
     if (auto record = world.Hit(ray, dInterval{0.001, dInterval::PositiveInfinity()});
         record != std::nullopt) {
 
-        // Correct Lambertian Reflection
-        [[maybe_unused]] dVector3 direction = record->normal + dVector3::GenerateRandomUnitVector();
-
-        // Uniform Lambertian Reflection
-        // [[maybe_unused]] dVector3 direction = dVector3::RandomUnitVectorOnHemisphere(record->normal);
+        auto scatter_result = std::visit(
+            [&](const auto &material) { return material.Scatter(ray, record->normal, record->end_point); },
+            *record->material_view);
 
         // this returns a color map
         // return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
 
-        // this returns a diffused color by using the hemisphere unit vector's direction with the ray's
-        // end point
-        return reflectance * RayToColor(dRay{record->end_point, direction}, depth - 1, world);
+        // this returns a diffused color
+        if (scatter_result)
+            return scatter_result->attenuation * RayToColor(scatter_result->scattered_ray, depth - 1, world);
     }
 
     // otherwise, just color the background

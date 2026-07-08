@@ -128,14 +128,14 @@ struct VectorOperations {
     [[nodiscard]] friend constexpr bool operator==(const Derived &left_vector, const Derived &right_vector) {
         auto downcast_left = static_cast<const Derived &>(left_vector);
         auto downcast_right = static_cast<const Derived &>(right_vector);
-        return downcast_left.is_equal(downcast_right);
+        return downcast_left.IsEqual(downcast_right);
     }
 
     /* vector <=> vector */
     [[nodiscard]] friend constexpr bool operator<=>(const Derived &left_vector, const Derived &right_vector) {
         auto downcast_left = static_cast<const Derived &>(left_vector);
         auto downcast_right = static_cast<const Derived &>(right_vector);
-        return downcast_left.three_way_compare(downcast_right);
+        return downcast_left.ThreeWayCompare(downcast_right);
     }
 
     /* vector + vector */
@@ -294,6 +294,17 @@ struct VectorOperations {
             }
         }
     }
+
+    // compares all members of a floating point vector to a threshold, in this case 1e-8
+    constexpr bool HasNearZeroFloatPointPrecision() {
+        if (!std::is_floating_point_v<T>) return false;
+        auto &self = static_cast<Derived &>(*this);
+        auto compare_all_variables = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            return ((self[Is] < 1e-8) && ...);
+        };
+        compare_all_variables(std::make_index_sequence<N>());
+        return false; // should never be reached
+    }
 };
 
 // Primary template for arbitrary N
@@ -305,11 +316,11 @@ struct Vector : public VectorOperations<Vector<T, N>, T, N> {
 
     constexpr Vector(T scalar) { data.fill(scalar); }
 
-    [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept { return data == other.data; }
+    [[nodiscard]] constexpr bool IsEqual(const Vector &other) const noexcept { return data == other.data; }
 
     // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
     // be used / is not a priority
-    [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
+    [[nodiscard]] constexpr bool ThreeWayCompare(const Vector &other) const noexcept {
         return data <=> other.data;
     }
 
@@ -330,13 +341,13 @@ struct Vector<T, 2zu> : public VectorOperations<Vector<T, 2zu>, T, 2zu> {
     constexpr Vector(T _x, T _y) : x{_x}, y{_y} {}
     constexpr Vector(T scalar) : x{scalar}, y{scalar} {}
 
-    [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept {
+    [[nodiscard]] constexpr bool IsEqual(const Vector &other) const noexcept {
         return (x == other.x && y == other.y);
     }
 
     // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
     // be used / is not a priority
-    [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
+    [[nodiscard]] constexpr bool ThreeWayCompare(const Vector &other) const noexcept {
         return (x <=> other.x && y <=> other.y);
     }
 
@@ -366,6 +377,26 @@ struct Math3D {
         auto z_param = self[0] * other[1] - self[1] * other[0];
         return Derived{x_param, y_param, z_param};
     }
+
+    static constexpr Derived ReflectFromSurfaceNormal(const Derived &incoming_vector, const Derived &surface_unit_vector) {
+        assert(std::abs(surface_unit_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
+               "Vector::Reflect requires normalized surface_unit_vector argument.");
+        return incoming_vector -
+               2 * Derived::DotProduct(incoming_vector, surface_unit_vector) * surface_unit_vector;
+    }
+
+    static constexpr Derived RandomUnitVectorOnHemisphere(const Derived &normal_vector) {
+        // NOTE: this should change once std::sqrt() is constexpr
+        assert(std::abs(normal_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
+               "Vector::RandomUnitVectorOnHemisphere requires normalized vector argument.");
+        auto vector_on_unit_sphere = Derived::GenerateRandomUnitVector();
+        // if we're on the same hemisphere as the normal
+        if (Derived::DotProduct(vector_on_unit_sphere, normal_vector) > 0.0) {
+            return vector_on_unit_sphere;
+        } else {
+            return -vector_on_unit_sphere;
+        }
+    }
 };
 
 // - See using Vector2 comment above
@@ -378,13 +409,13 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
     constexpr Vector(T scalar) : x{scalar}, y{scalar}, z{scalar} {}
     constexpr Vector(Color<T, 3zu> color) : x{color.r}, y{color.g}, z{color.b} {}
 
-    [[nodiscard]] constexpr bool is_equal(const Vector &other) const noexcept {
+    [[nodiscard]] constexpr bool IsEqual(const Vector &other) const noexcept {
         return (x == other.x && y == other.y && z == other.z);
     }
 
     // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
     // be used / is not a priority
-    [[nodiscard]] constexpr bool three_way_compare(const Vector &other) const noexcept {
+    [[nodiscard]] constexpr bool ThreeWayCompare(const Vector &other) const noexcept {
         return (x <=> other.x && y <=> other.y && z <=> other.z);
     }
 
@@ -393,19 +424,6 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
         if (i == 0) return std::forward_like<Self>(self).x;
         if (i == 1) return std::forward_like<Self>(self).y;
         return std::forward_like<Self>(self).z;
-    }
-
-    static constexpr Vector RandomUnitVectorOnHemisphere(const Vector &normal_vector) {
-        // NOTE: this should change once std::sqrt() is constexpr
-        assert(std::abs(normal_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
-               "Vector::RandomUnitVectorOnHemisphere requires normalized vector argument.");
-        auto vector_on_unit_sphere = Vector::GenerateRandomUnitVector();
-        // if we're on the same hemisphere as the normal
-        if (Vector::DotProduct(vector_on_unit_sphere, normal_vector) > 0.0) {
-            return vector_on_unit_sphere;
-        } else {
-            return -vector_on_unit_sphere;
-        }
     }
 };
 
@@ -418,13 +436,13 @@ struct Color<T, 3zu> : public VectorOperations<Color<T, 3zu>, T, 3zu>, public Ma
     constexpr Color(T scalar) : r{scalar}, g{scalar}, b{scalar} {}
     constexpr Color(Vector<T, 3zu> vector) : r{vector.x}, g{vector.y}, b{vector.z} {}
 
-    [[nodiscard]] constexpr bool is_equal(const Color &other) const noexcept {
+    [[nodiscard]] constexpr bool IsEqual(const Color &other) const noexcept {
         return (r == other.r && g == other.g && b == other.b);
     }
 
     // NOTE: this is not a complete implementation, especially for floating point types, but will likely not
     // be used / is not a priority
-    [[nodiscard]] constexpr bool three_way_compare(const Color &other) const noexcept {
+    [[nodiscard]] constexpr bool ThreeWayCompare(const Color &other) const noexcept {
         return (r <=> other.r && g <=> other.g && b <=> other.b);
     }
 
@@ -451,6 +469,14 @@ using Point2D = Vector<T, 2zu>;
 
 template <Number T>
 using Point3D = Vector<T, 3zu>;
+
+struct DoublePrecisionVector3D : Vector3D<double> {
+    constexpr bool NearZero() {
+        auto threshold = 1e-8;
+        return (std::fabs(this->x < threshold) && std::fabs(this->y < threshold) &&
+                std::fabs(this->z) < threshold);
+    }
+};
 
 } // namespace Math
 
