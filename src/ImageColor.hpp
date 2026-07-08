@@ -9,10 +9,17 @@
 
 namespace ImageColor {
 
+constexpr f64 LinearToGamma(f64 linear_component) {
+    if (linear_component > 0) {
+        return std::sqrt(linear_component);
+    }
+    return 0.0;
+}
+
 constexpr void WriteColor(std::ostream &out, const dColor &pixel_color) {
-    auto r = pixel_color.r;
-    auto g = pixel_color.g;
-    auto b = pixel_color.b;
+    auto r = LinearToGamma(pixel_color.r);
+    auto g = LinearToGamma(pixel_color.g);
+    auto b = LinearToGamma(pixel_color.b);
 
     static const auto intensity = dInterval{0.000, 0.999};
     i32 rbyte = i32(256 * intensity.clamp(r));
