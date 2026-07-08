@@ -1,5 +1,7 @@
 #pragma once
+
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <format>
@@ -222,6 +224,8 @@ struct VectorOperations {
 
     constexpr Derived &Normalize() {
         auto &self = static_cast<Derived &>(*this);
+        T magnitude_squared = self.MagnitudeSquared();
+        if (magnitude_squared == static_cast<T>(0)) return self; // this prevents division by 0
         const T inverse_magnitude = self.InverseMagnitude();
         auto scale = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
             ((self[Is] *= inverse_magnitude), ...);
@@ -238,6 +242,8 @@ struct VectorOperations {
 
     static constexpr Derived UnitVector(const Derived &vector) {
         Derived result = vector;
+        T magnitude_squared = result.MagnitudeSquared();
+        if (magnitude_squared == static_cast<T>(0)) return result;
         return result / result.Magnitude();
     }
 
@@ -263,7 +269,7 @@ struct VectorOperations {
     static constexpr Derived GenerateRandomVector() {
         auto new_vector = Derived{};
         auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((new_vector[Is] = Rand::GenerateRandomNumber<T>()), ...);
+            ((new_vector[Is] = Rand::GenerateRandomNumber<T>), ...);
         };
         fill_vector(std::make_index_sequence<N>{});
         return new_vector;
@@ -272,19 +278,21 @@ struct VectorOperations {
     static constexpr Derived GenerateRandomVector(T min, T max) {
         auto new_vector = Derived{};
         auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((new_vector[Is] = Rand::GenerateRandomNumber<T>(min, max)()), ...);
+            ((new_vector[Is] = Rand::GenerateRandomNumber<T>(min, max)), ...);
         };
         fill_vector(std::make_index_sequence<N>{});
         return new_vector;
     }
 
-    static constexpr Derived GenerateRandomNormalizedVector() {
-        auto new_vector = Derived{};
-        auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((new_vector[Is] = Rand::GenerateRandomNormalizedNumber<T>()), ...);
-        };
-        fill_vector(std::make_index_sequence<N>{});
-        return new_vector;
+    // very simple rejection method, can be optimized
+    static constexpr Derived GenerateRandomUnitVector() {
+        while (true) {
+            auto candidate = GenerateRandomVector(static_cast<T>(-1), static_cast<T>(1));
+            T magnitude_squared = candidate.MagnitudeSquared();
+            if (static_cast<T>(0) < magnitude_squared && magnitude_squared <= static_cast<T>(1)) {
+                return candidate / std::sqrt(magnitude_squared);
+            }
+        }
     }
 };
 
@@ -385,6 +393,19 @@ struct Vector<T, 3zu> : public VectorOperations<Vector<T, 3zu>, T, 3zu>, public 
         if (i == 0) return std::forward_like<Self>(self).x;
         if (i == 1) return std::forward_like<Self>(self).y;
         return std::forward_like<Self>(self).z;
+    }
+
+    static constexpr Vector RandomUnitVectorOnHemisphere(const Vector &normal_vector) {
+        // NOTE: this should change once std::sqrt() is constexpr
+        assert(std::abs(normal_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
+               "Vector::RandomUnitVectorOnHemisphere requires normalized vector argument.");
+        auto vector_on_unit_sphere = Vector::GenerateRandomUnitVector();
+        // if we're on the same hemisphere as the normal
+        if (Vector::DotProduct(vector_on_unit_sphere, normal_vector) > 0.0) {
+            return vector_on_unit_sphere;
+        } else {
+            return -vector_on_unit_sphere;
+        }
     }
 };
 
