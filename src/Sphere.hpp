@@ -14,7 +14,7 @@ private:
 public:
     Sphere(const dPoint3 &center, f64 radius) : center_{center}, radius_{std::fmax(0, radius)} {}
 
-    /* Hit function that solves quadratic of dot_product(vector, vector)->double */
+    /* Hit function that solves quadratic with dot_product(direction, origin center)->double */
     constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const {
         dVector3 origin_center = center_ - ray.origin;
         f64 a = ray.direction.MagnitudeSquared();
