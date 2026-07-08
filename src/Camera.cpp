@@ -1,6 +1,9 @@
 #include "Camera.hpp"
 
 #include <iostream>
+#include <numeric>
+#include <thread>
+#include <vector>
 
 #include "ImageColor.hpp"
 #include "Math/Random.hpp"
@@ -31,19 +34,39 @@ void Camera::RenderPass(const World &world) {
 }
 
 void Camera::AntialiasingRenderPass(const World &world) {
-    Camera::InitializePass();
+    InitializePass();
 
-    std::cout << "P3\n" << image_width << " " << image_height_ << "\n255\n";
+    // all pixels are stored here
+    auto framebuffer = std::vector<dColor>(image_width * image_height_);
+    const auto thread_count = std::thread::hardware_concurrency();
 
-    for (auto j{0zu}; j < image_height_; ++j) {
-        for (auto i{0zu}; i < image_width; ++i) {
-            auto pixel_color = dColor{};
-            for (auto sample{0zu}; sample < samples_per_pixel; ++sample) {
-                auto ray = GetRay(i, j);
-                pixel_color += RayToColor(ray, max_depth, world);
+    auto threads = std::vector<std::jthread>{};
+    threads.reserve(thread_count);
+
+    // because there are no data races when rendering, trace in parallel
+    // each thread gets a scanline
+    for (auto t{0zu}; t < thread_count; ++t) {
+        threads.emplace_back([&, t]() {
+            for (auto j{t}; j < image_height_; j += thread_count) {
+                for (auto i{0zu}; i < image_width; ++i) {
+                    auto pixel_color = dColor{};
+                    for (auto sample{0zu}; sample < samples_per_pixel; ++sample) {
+                        auto ray = GetRay(i, j);
+                        pixel_color += RayToColor(ray, max_depth, world);
+                    }
+                    framebuffer[j * image_width + i] = pixel_samples_scale_ * pixel_color;
+                }
             }
-            ImageColor::WriteColor(std::cout, pixel_samples_scale_ * pixel_color);
-        }
+        });
+    }
+
+    // NOTE: threads must end before writing to ppm
+    threads.clear();
+
+    // write to the ppm file
+    std::cout << "P3\n" << image_width << " " << image_height_ << "\n255\n";
+    for (const auto &color : framebuffer) {
+        ImageColor::WriteColor(std::cout, color);
     }
 }
 
