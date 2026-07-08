@@ -30,5 +30,6 @@ std::optional<ScatterRecord> Metal::Scatter(const dRay &ray_in, const dVector3 &
                                             const dPoint3 &end_point) const {
 
     auto reflected_ray = dVector3::ReflectFromSurfaceNormal(ray_in.direction, surface_hit_normal);
+    reflected_ray = dVector3::UnitVector(reflected_ray) + (fuzz_ * dVector3::GenerateRandomUnitVector());
     return ScatterRecord{Attenuation{albedo_}, ScatteredRay{end_point, reflected_ray}};
 }
