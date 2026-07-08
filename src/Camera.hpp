@@ -16,6 +16,7 @@ public:
     f64 aspect_ratio{16.0 / 9.0};
     std::size_t image_width{400};
     std::size_t samples_per_pixel{10};
+    std::size_t max_depth{10};
 
 private:
     std::size_t image_height_{};
@@ -42,7 +43,7 @@ public:
                 auto pixel_center = pixel_00_location_ + (i * pixel_delta_u_) + (j * pixel_delta_v_);
                 auto ray_direction = pixel_center - camera_center_;
                 auto ray = dRay{camera_center_, ray_direction};
-                dColor pixel_color = RayToColor(ray, world);
+                dColor pixel_color = RayToColor(ray, max_depth, world);
                 ImageColor::WriteColor(std::cout, pixel_color);
             }
         }
@@ -58,7 +59,7 @@ public:
                 auto pixel_color = dColor{};
                 for (auto sample{0zu}; sample < samples_per_pixel; ++sample) {
                     auto ray = GetRay(i, j);
-                    pixel_color += RayToColor(ray, world);
+                    pixel_color += RayToColor(ray, max_depth, world);
                 }
                 ImageColor::WriteColor(std::cout, pixel_samples_scale_ * pixel_color);
             }
@@ -77,13 +78,26 @@ private:
 
     dVector3 SampleSquare() const { return dVector3{Rand::RandomF64() - 0.5, Rand::RandomF64() - 0.5, 0}; }
 
-    dColor RayToColor(const dRay &ray, const World &world) {
-        if (auto record = world.Hit(ray, dInterval{0, dInterval::PositiveInfinity()});
+    dColor RayToColor(const dRay &ray, std::size_t depth, const World &world) {
+        if (depth <= 0) return dColor{0, 0, 0};
+
+        // if we hit something, render it
+        if (auto record = world.Hit(ray, dInterval{0.001, dInterval::PositiveInfinity()});
             record != std::nullopt) {
-            return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
+            dVector3 direction = dVector3::RandomUnitVectorOnHemisphere(record->normal);
+
+            // this returns a color map
+            // return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
+
+            // this returns a diffused color by using the hemisphere unit vector's direction with the ray's end point
+            return 0.5 * RayToColor(dRay{record->end_point, direction}, depth - 1, world);
         }
+
+        // otherwise, just color the background
         dVector3 unit_direction = dVector3::Normalize(ray.direction);
         f64 alpha = 0.5 * (unit_direction.y + 1.0);
+
+        // blend from blue up top to white at the bottom
         return (1.0 - alpha) * /* white */ dColor{1.0, 1.0, 1.0} +
                alpha * /* light blue */ dColor{0.5, 0.7, 1.0};
     }
