@@ -93,7 +93,7 @@ dPoint3 Camera::DefocusDiskSample() const {
 
 dVector3 Camera::SampleSquare() const {
     using namespace Math;
-    return dVector3{Rand::GenerateRandomNumber<f64>() - 0.5, Rand::GenerateRandomNumber<f64>() - 0.5, 0};
+    return dVector3{Rand::GenerateRandomNormalizedNumber<f64>() - 0.5, Rand::GenerateRandomNormalizedNumber<f64>() - 0.5, 0};
 }
 
 dColor Camera::RayToColor(const dRay &ray, std::size_t depth, const World &world) const {
