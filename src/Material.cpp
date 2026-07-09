@@ -1,6 +1,7 @@
 #include "Material.hpp"
 
 #include "HittableList.hpp"
+#include "Math/Random.hpp"
 #include "Ray.hpp"
 
 #include "Math/Vector.hpp"
@@ -9,6 +10,13 @@
 namespace {
 using Attenuation = dColor;
 using ScatteredRay = dRay;
+
+// Shlick's approximation
+static double Reflectance(f64 cosine, f64 refraction_index) {
+    auto r0 = (1 - refraction_index) / (1 + refraction_index);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+}
 
 } // namespace
 
@@ -37,11 +45,14 @@ std::optional<ScatterRecord> Dielectric::Scatter(const dRay &ray_in, const HitRe
     f64 cosine_theta = std::fmin(dVector3::DotProduct(-unit_direction, record.normal), 1.0);
     f64 sin_theta = std::sqrt(1.0 - cosine_theta * cosine_theta);
 
+    auto direction = dVector3{};
     bool cannot_refract = final_refraction_index * sin_theta > 1.0;
 
-    auto direction = cannot_refract ? dVector3::ReflectFromSurfaceNormal(unit_direction, record.normal)
-                                    : dVector3::RefractFromSurfaceNormal(unit_direction, record.normal,
-                                                                         final_refraction_index);
-
+    if (cannot_refract ||
+        Reflectance(cosine_theta, final_refraction_index) > Math::Rand::GenerateRandomNumber<f64>()) {
+        direction = dVector3::ReflectFromSurfaceNormal(unit_direction, record.normal);
+    } else {
+        direction = dVector3::RefractFromSurfaceNormal(unit_direction, record.normal, final_refraction_index);
+    }
     return ScatterRecord{Attenuation{1.0, 1.0, 1.0}, ScatteredRay{record.end_point, direction}};
 }

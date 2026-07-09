@@ -5,7 +5,9 @@
 #include <vector>
 
 #include "ImageColor.hpp"
+#include "Math/Numbers.hpp"
 #include "Math/Random.hpp"
+#include "Math/Vector.hpp"
 
 // ==== PUBLIC METHODS
 // ======================================================================================================
@@ -15,6 +17,10 @@ Camera::Camera(f64 _aspect_ratio, std::size_t _image_width)
 
 Camera::Camera(f64 _aspect_ratio, std::size_t _image_width, std::size_t _samples_per_pixel)
     : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel} {}
+
+Camera::Camera(f64 _aspect_ratio, std::size_t _image_width, std::size_t _samples_per_pixel, f64 _vertical_fov)
+    : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel},
+      vertical_fov{_vertical_fov} {}
 
 void Camera::RenderPass(const World &world) {
     Camera::InitializePass();
@@ -93,9 +99,8 @@ dColor Camera::RayToColor(const dRay &ray, std::size_t depth, const World &world
     if (auto record = world.Hit(ray, dInterval{0.001, dInterval::PositiveInfinity()});
         record != std::nullopt) {
 
-        auto scatter_result = std::visit(
-            [&](const auto &material) { return material.Scatter(ray, *record); },
-            *record->material_view);
+        auto scatter_result = std::visit([&](const auto &material) { return material.Scatter(ray, *record); },
+                                         *record->material_view);
 
         // this returns a color map
         // return 0.5 * dColor{record->normal + dVector3{1, 1, 1}};
@@ -120,22 +125,30 @@ void Camera::InitializePass() {
 
     pixel_samples_scale_ = 1.0 / samples_per_pixel;
 
+    camera_center_ = look_from;
+
     // Viewport dimensions
-    f64 focal_length = 1.0;
-    f64 viewport_height = 2.0;
+    f64 focal_length = (look_from - look_at).Magnitude();
+    f64 theta = Math::DegreesToRadians(vertical_fov);
+    auto h_ratio = std::tan(theta / 2);
+
+    f64 viewport_height = 2.0 * h_ratio * focal_length;
     f64 viewport_width = viewport_height * (f64(image_width) / image_height_);
-    camera_center_ = dPoint3{};
+
+    // u, v, w unit basis vectors for camerate coordinate frame
+    w = dVector3::UnitVector(look_from - look_at);
+    u = dVector3::UnitVector(dVector3::CrossProduct(vertical_up, w));
+    v = dVector3::CrossProduct(w, u);
 
     // Vectors across viewport edges
-    auto viewport_u = dVector3{viewport_width, 0, 0};
-    auto viewport_v = dVector3{0, -viewport_height, 0};
+    auto viewport_u = viewport_width * u;
+    auto viewport_v = viewport_height * -v;
 
     // Horizontal and Vertical unit vectors
     pixel_delta_u_ = viewport_u / image_width;
     pixel_delta_v_ = viewport_v / image_height_;
 
     // Location of upper left pixel
-    auto viewport_upper_left =
-        camera_center_ - dVector3{0, 0, focal_length} - viewport_u / 2 - viewport_v / 2;
+    auto viewport_upper_left = camera_center_ - (focal_length * w) - viewport_u / 2 - viewport_v / 2;
     pixel_00_location_ = viewport_upper_left + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
 }
