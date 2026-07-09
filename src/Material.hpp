@@ -20,6 +20,8 @@ private:
     dColor albedo_{0.5};
 
 public:
+    Lambertian() = default;
+
     Lambertian(const dColor &albedo) : albedo_{albedo} {}
 
     std::optional<ScatterRecord> Scatter(const dRay &ray_in, const HitRecord &record) const;
@@ -31,6 +33,8 @@ private:
     f64 fuzz_{1.0};
 
 public:
+    Metal() = default;
+
     Metal(const dColor &albedo) : albedo_{albedo} {}
 
     Metal(const dColor &albedo, f64 fuzz) : albedo_{albedo}, fuzz_{fuzz} {}
@@ -45,6 +49,8 @@ private:
     f64 refraction_index_;
 
 public:
+    Dielectric() = default;
+
     Dielectric(f64 refraction_index) : refraction_index_{refraction_index} {}
 
     std::optional<ScatterRecord> Scatter(const dRay &ray_in, const HitRecord &record) const;
