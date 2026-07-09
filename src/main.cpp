@@ -10,6 +10,7 @@ int main() {
     // Init World Objects
     using Radius = f64;
     using Reflection = f64;
+    using RefractionIndex = f64;
 
     auto center_sphere = Sphere{dPoint3{0, 0, -1.2}, Radius{0.5},
                                 Material{std::in_place_type<Lambertian>, dColor{0.8, 0.0, 0.2}}};
@@ -17,8 +18,11 @@ int main() {
     auto big_bottom_sphere = Sphere{dPoint3{0, -100.5, -1}, Radius{100},
                                     Material{std::in_place_type<Lambertian>, dColor{0.8, 0.8, 0.0}}};
 
-    auto left_sphere = Sphere{dPoint3{-1, 0, -1}, Radius{0.5},
-                              Material{std::in_place_type<Metal>, dColor{0.8, 0.8, 0.8}, Reflection{0.3}}};
+    // auto left_sphere = Sphere{dPoint3{-1, 0, -1}, Radius{0.5},
+    //                           Material{std::in_place_type<Metal>, dColor{0.8, 0.8, 0.8}, Reflection{0.3}}};
+
+    auto left_sphere =
+        Sphere{dPoint3{-1, 0, -1}, Radius{0.5}, Material{std::in_place_type<Dielectric>, RefractionIndex{1.50}}};
 
     auto right_sphere = Sphere{dPoint3{1, 0, -1}, Radius{0.5},
                                Material{std::in_place_type<Metal>, dColor{0.2, 0.2, 0.8}, Reflection{1.0}}};

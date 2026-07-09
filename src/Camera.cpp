@@ -1,7 +1,6 @@
 #include "Camera.hpp"
 
 #include <iostream>
-#include <numeric>
 #include <thread>
 #include <vector>
 
@@ -95,7 +94,7 @@ dColor Camera::RayToColor(const dRay &ray, std::size_t depth, const World &world
         record != std::nullopt) {
 
         auto scatter_result = std::visit(
-            [&](const auto &material) { return material.Scatter(ray, record->normal, record->end_point); },
+            [&](const auto &material) { return material.Scatter(ray, *record); },
             *record->material_view);
 
         // this returns a color map

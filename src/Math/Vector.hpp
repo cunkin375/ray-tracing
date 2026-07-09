@@ -378,11 +378,25 @@ struct Math3D {
         return Derived{x_param, y_param, z_param};
     }
 
-    static constexpr Derived ReflectFromSurfaceNormal(const Derived &incoming_vector, const Derived &surface_unit_vector) {
+    static constexpr Derived ReflectFromSurfaceNormal(const Derived &incoming_vector,
+                                                      const Derived &surface_unit_vector) {
         assert(std::abs(surface_unit_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
                "Vector::Reflect requires normalized surface_unit_vector argument.");
         return incoming_vector -
                2 * Derived::DotProduct(incoming_vector, surface_unit_vector) * surface_unit_vector;
+    }
+
+    static constexpr Derived RefractFromSurfaceNormal(const Derived &uv_vector,
+                                                      const Derived &surface_unit_vector,
+                                                      double etai_over_etat) {
+        assert(std::abs(surface_unit_vector.MagnitudeSquared() - static_cast<T>(1)) < 1e-5 &&
+               "Vector::Refract requires normalized surface_unit_vector argument.");
+        auto cosine_theta = std::fmin(Derived::DotProduct(-uv_vector, surface_unit_vector), 1.0);
+        auto refracted_out_perpendicular = etai_over_etat * (uv_vector + cosine_theta * surface_unit_vector);
+        auto refracted_out_parallel =
+            -std::sqrt(std::fabs(1.0f - refracted_out_perpendicular.MagnitudeSquared())) *
+            surface_unit_vector;
+        return refracted_out_perpendicular + refracted_out_parallel;
     }
 
     static constexpr Derived RandomUnitVectorOnHemisphere(const Derived &normal_vector) {
