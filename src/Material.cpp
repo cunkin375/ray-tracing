@@ -15,10 +15,9 @@ using ScatteredRay = dRay;
 /*** Lambertian Material functions ***/
 std::optional<ScatterRecord> Lambertian::Scatter(const dRay &ray_in, const HitRecord &record) const {
     // Correct Lambertian Reflection
-    [[maybe_unused]] auto scatter_direction = record.normal + dVector3::GenerateRandomUnitVector();
+    auto scatter_direction = record.normal + dVector3::GenerateRandomUnitVector();
     // Uniform Lambertian Reflection
-    // [[maybe_unused]] dVector3 scatter_direction =
-    // dVector3::RandomUnitVectorOnHemisphere(surface_hit_normal);
+    // dVector3 scatter_direction = dVector3::RandomUnitVectorOnHemisphere(surface_hit_normal);
     if (scatter_direction.HasNearZeroFloatPointPrecision()) { scatter_direction = record.normal; }
     return ScatterRecord{Attenuation{albedo_}, ScatteredRay{record.end_point, scatter_direction}};
 }
@@ -32,9 +31,17 @@ std::optional<ScatterRecord> Metal::Scatter(const dRay &ray_in, const HitRecord 
 
 /*** Dialectric Material functions ***/
 std::optional<ScatterRecord> Dielectric::Scatter(const dRay &ray_in, const HitRecord &record) const {
-    double final_refraction_index = record.front_face ? (1.0 / refraction_index_) : refraction_index_;
+    f64 final_refraction_index = record.front_face ? (1.0 / refraction_index_) : refraction_index_;
     auto unit_direction = dVector3::UnitVector(ray_in.direction);
-    auto refracted_ray =
-        dVector3::RefractFromSurfaceNormal(unit_direction, record.normal, final_refraction_index);
-    return ScatterRecord{Attenuation{1.0, 1.0, 1.0}, ScatteredRay{record.end_point, refracted_ray}};
+
+    f64 cosine_theta = std::fmin(dVector3::DotProduct(-unit_direction, record.normal), 1.0);
+    f64 sin_theta = std::sqrt(1.0 - cosine_theta * cosine_theta);
+
+    bool cannot_refract = final_refraction_index * sin_theta > 1.0;
+
+    auto direction = cannot_refract ? dVector3::ReflectFromSurfaceNormal(unit_direction, record.normal)
+                                    : dVector3::RefractFromSurfaceNormal(unit_direction, record.normal,
+                                                                         final_refraction_index);
+
+    return ScatterRecord{Attenuation{1.0, 1.0, 1.0}, ScatteredRay{record.end_point, direction}};
 }

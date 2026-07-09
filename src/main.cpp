@@ -21,8 +21,8 @@ int main() {
     // auto left_sphere = Sphere{dPoint3{-1, 0, -1}, Radius{0.5},
     //                           Material{std::in_place_type<Metal>, dColor{0.8, 0.8, 0.8}, Reflection{0.3}}};
 
-    auto left_sphere =
-        Sphere{dPoint3{-1, 0, -1}, Radius{0.5}, Material{std::in_place_type<Dielectric>, RefractionIndex{1.50}}};
+    auto left_sphere = Sphere{dPoint3{-1, 0, -1}, Radius{0.5},
+                              Material{std::in_place_type<Dielectric>, RefractionIndex{1.00 / 1.33}}};
 
     auto right_sphere = Sphere{dPoint3{1, 0, -1}, Radius{0.5},
                                Material{std::in_place_type<Metal>, dColor{0.2, 0.2, 0.8}, Reflection{1.0}}};
