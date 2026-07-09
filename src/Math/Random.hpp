@@ -3,7 +3,7 @@
 #include <concepts>
 #include <random>
 
-#include "Number.hpp"
+#include "Numbers.hpp"
 
 namespace Math::Rand {
 

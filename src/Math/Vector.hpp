@@ -8,7 +8,7 @@
 #include <immintrin.h>
 #include <utility>
 
-#include "Number.hpp"
+#include "Numbers.hpp"
 #include "Random.hpp"
 
 /** Linear Algebra Library made to experiment with template metaprogramming */
