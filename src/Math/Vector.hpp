@@ -269,7 +269,7 @@ struct VectorOperations {
     static constexpr Derived GenerateRandomVector() {
         auto new_vector = Derived{};
         auto fill_vector = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            ((new_vector[Is] = Rand::GenerateRandomNumber<T>), ...);
+            ((new_vector[Is] = Rand::GenerateRandomNumber<T>()), ...);
         };
         fill_vector(std::make_index_sequence<N>{});
         return new_vector;
@@ -483,14 +483,6 @@ using Point2D = Vector<T, 2zu>;
 
 template <Number T>
 using Point3D = Vector<T, 3zu>;
-
-struct DoublePrecisionVector3D : Vector3D<double> {
-    constexpr bool NearZero() {
-        auto threshold = 1e-8;
-        return (std::fabs(this->x < threshold) && std::fabs(this->y < threshold) &&
-                std::fabs(this->z) < threshold);
-    }
-};
 
 } // namespace Math
 
