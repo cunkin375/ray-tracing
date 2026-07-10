@@ -49,7 +49,7 @@ void Camera::AntialiasingRenderPass(const World &world) {
     threads.reserve(thread_count);
 
     // because there are no data races when rendering, trace in parallel
-    // each thread gets a scanline
+    // each thread starts from a row index from (0, thread_count-1) and wors on the next N * thread_count row
     for (auto t{0zu}; t < thread_count; ++t) {
         threads.emplace_back([&, t]() {
             for (auto j{t}; j < image_height_; j += thread_count) {
