@@ -1,31 +1,39 @@
 #pragma once
 
 #include "Math/Vector.hpp"
+#include "Util/Aliases.hpp"
 
 struct Ray {
+public:
     Point3 origin;
     Vector3 direction;
+    f32 time;
 
+public:
     Ray() = default;
 
-    Ray(const Point3 &_origin, const Vector3 &_direction) : origin{_origin}, direction{_direction} {}
+    Ray(const Point3 &_origin, const Vector3 &_direction, f32 _time)
+        : origin{_origin}, direction{_direction}, time{_time} {}
 
-    Point3 At(double scalar) const {
-        return origin + scalar * direction;
-    }
+    Ray(const Point3 &_origin, const Vector3 &_direction) : origin{_origin}, direction{_direction}, time{0} {}
 
+    Point3 At(f32 scalar) const { return origin + scalar * direction; }
 };
 
 struct dRay {
+public:
     dPoint3 origin;
     dVector3 direction;
+    f64 time;
 
+public:
     dRay() = default;
 
-    dRay(const dPoint3 &_origin, const dVector3 &_direction) : origin{_origin}, direction{_direction} {}
+    dRay(const dPoint3 &_origin, const dVector3 &_direction, f64 _time)
+        : origin{_origin}, direction{_direction}, time{_time} {}
 
-    dPoint3 At(double t) const {
-        return origin + t * direction;
-    }
+    dRay(const dPoint3 &_origin, const dVector3 &_direction)
+        : origin{_origin}, direction{_direction}, time{0} {}
 
+    dPoint3 At(f64 t) const { return origin + t * direction; }
 };
