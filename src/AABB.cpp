@@ -1,3 +1,5 @@
+#include "AABB.hpp"
+
 #include "Hittable.hpp"
 
 #include <algorithm>

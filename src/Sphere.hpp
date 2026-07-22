@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AxisAlignedBoundingBox.hpp"
+#include "AABB.hpp"
 #include "Material.hpp"
 #include "Ray.hpp"
 

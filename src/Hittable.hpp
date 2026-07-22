@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "AxisAlignedBoundingBox.hpp"
+#include "AABB.hpp"
 #include "Material.hpp"
 #include "Ray.hpp"
 #include "Sphere.hpp"

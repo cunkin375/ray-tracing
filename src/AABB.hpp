@@ -8,32 +8,40 @@
 #include "Ray.hpp"
 
 template <Math::Number T>
-class AxisAlignedBoundingBox {
+struct AxisAlignedBoundingBox {
+
 public:
     Interval<T> x, y, z;
 
-    AxisAlignedBoundingBox() = default;
+    constexpr AxisAlignedBoundingBox() = default;
 
-    AxisAlignedBoundingBox(const Interval<T> &_x, const Interval<T> &_y, const Interval<T> &_z)
+    constexpr AxisAlignedBoundingBox(const Interval<T> &_x, const Interval<T> &_y, const Interval<T> &_z)
         : x{_x}, y{_y}, z{_z} {}
 
-    AxisAlignedBoundingBox(const Point3<T> &point_a, const Point3<T> &point_b) {
+    constexpr AxisAlignedBoundingBox(const Point3<T> &point_a, const Point3<T> &point_b) {
         // treat both points as the extremes of the bounding box
         x = (point_a.x <= point_b.x) ? Interval<T>{point_a.x, point_b.x} : Interval<T>{point_b.x, point_a.x};
         y = (point_a.y <= point_b.y) ? Interval<T>{point_a.y, point_b.y} : Interval<T>{point_b.y, point_a.y};
         z = (point_a.z <= point_b.z) ? Interval<T>{point_a.z, point_b.z} : Interval<T>{point_b.z, point_a.z};
     }
 
-    AxisAlignedBoundingBox(const AxisAlignedBoundingBox &box_0, const AxisAlignedBoundingBox &box_1) {
+    constexpr AxisAlignedBoundingBox(const AxisAlignedBoundingBox &box_0,
+                                     const AxisAlignedBoundingBox &box_1) {
         x = Interval<T>(box_0.x, box_1.x);
         y = Interval<T>(box_0.y, box_1.y);
         z = Interval<T>(box_0.z, box_1.z);
     }
 
-    constexpr auto &AxisInterval(std::size_t i) const {
+    // ok big bro... if it makes you compile...
+    constexpr const Interval<T> &AxisInterval(std::size_t i) const {
         if (i == 0) return x;
         if (i == 1) return y;
         return z;
+    }
+
+    std::size_t LongestAxis() const {
+        if (x.Size > y.Size()) return x.Size() > z.size() ? 0 : 2;
+        else return y.Size() > z.size() ? 1 : 2;
     }
 
     // NOTE: typing here might change later
