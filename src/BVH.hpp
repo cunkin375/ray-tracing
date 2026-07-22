@@ -69,7 +69,10 @@ public:
         }
 
         auto hit_left = left_->Hit(ray, ray_interval, references, dispatch);
+
         // skip if left has hit something near
+        // BUG: this is causing problems
+        // - Causes big bottom sphere to be rendered on top of everything
         auto hit_right = right_->Hit(
             ray, dInterval{ray_interval.lower, hit_left ? hit_left->distance : ray_interval.upper},
             references, dispatch);
@@ -82,16 +85,15 @@ template <typename... ShapeArgs>
 class BoundingVolumeHierarchy {
 
 private:
+    std::tuple<std::vector<ShapeArgs>...> shape_pools_;
     std::vector<HittableReference> references_;
-    DispatchTable<ShapeArgs...> dispatch_;
     std::unique_ptr<BVH_Node> root_;
-
-    const std::tuple<std::vector<ShapeArgs>...> &shape_pools_;
+    DispatchTable<ShapeArgs...> dispatch_;
 
 public:
     BoundingVolumeHierarchy(const HittableList<ShapeArgs...> &world)
-        : references_{world.BuildReferenceVector(world.object_pools)}, dispatch_{world.object_pools},
-          shape_pools_{world.object_pools} {
+        : shape_pools_{world.object_pools}, references_{world.BuildReferenceVector(world.object_pools)},
+          dispatch_{shape_pools_} {
         root_ = std::make_unique<BVH_Node>(references_, 0, references_.size());
     }
 

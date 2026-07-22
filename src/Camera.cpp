@@ -36,7 +36,6 @@ dVector3 Camera::SampleSquare() const {
                     Rand::GenerateRandomNormalizedNumber<f64>() - 0.5, 0};
 }
 
-
 void Camera::InitializePass() {
     image_height_ = std::size_t(image_width / aspect_ratio);
     // image height must at least be 1
