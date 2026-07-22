@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${VENDOR_SOURCE})
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:Clang>:-fexperimental-library>
     -Wall
+    -O3
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
