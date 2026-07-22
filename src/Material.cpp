@@ -1,6 +1,6 @@
 #include "Material.hpp"
 
-#include "HittableList.hpp"
+#include "Hittable.hpp"
 #include "Math/Random.hpp"
 #include "Ray.hpp"
 

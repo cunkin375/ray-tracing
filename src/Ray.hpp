@@ -5,19 +5,19 @@
 
 struct Ray {
 public:
-    Point3 origin;
-    Vector3 direction;
+    fPoint3 origin;
+    fVector3 direction;
     f32 time;
 
 public:
     Ray() = default;
 
-    Ray(const Point3 &_origin, const Vector3 &_direction, f32 _time)
+    Ray(const fPoint3 &_origin, const fVector3 &_direction, f32 _time)
         : origin{_origin}, direction{_direction}, time{_time} {}
 
-    Ray(const Point3 &_origin, const Vector3 &_direction) : origin{_origin}, direction{_direction}, time{0} {}
+    Ray(const fPoint3 &_origin, const fVector3 &_direction) : origin{_origin}, direction{_direction}, time{0} {}
 
-    Point3 At(f32 scalar) const { return origin + scalar * direction; }
+    fPoint3 At(f32 scalar) const { return origin + scalar * direction; }
 };
 
 struct dRay {

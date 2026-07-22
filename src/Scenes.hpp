@@ -1,8 +1,10 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "Math/Random.hpp"
+
 #include "Sphere.hpp"
-#include "Types.hpp"
+#include "Hittable.hpp"
+
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"

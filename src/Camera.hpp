@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.hpp"
+#include "Hittable.hpp"
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
