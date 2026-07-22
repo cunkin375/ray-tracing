@@ -10,7 +10,19 @@ namespace Math {
 
 template <Number T>
 struct Interval {
+public:
     T lower{}, upper{};
+
+public:
+    // this should represent empty constant
+    constexpr Interval() : lower{PositiveInfinity()}, upper{NegativeInfinity()} {}
+
+    constexpr Interval(T lower, T upper) : lower{lower}, upper{upper} {}
+
+    constexpr Interval(const Interval &left, const Interval&right) {
+        lower = left.lower <= right.lower ? left.lower : right.lower;
+        upper = left.upper <= right.upper ? left.upper : right.upper;
+    }
 
     static constexpr T NegativeInfinity() noexcept {
         if constexpr (std::numeric_limits<T>::has_infinity) {
@@ -28,21 +40,21 @@ struct Interval {
         }
     }
 
-    // this should represent empty constant
-    constexpr Interval() : lower{PositiveInfinity()}, upper{NegativeInfinity()} {}
+    constexpr double Size() const noexcept { return upper - lower; }
 
-    constexpr Interval(T lower, T upper) : lower{lower}, upper{upper} {}
+    constexpr bool Contains(T x) const noexcept { return lower <= x && x <= upper; }
 
-    constexpr double Size() const { return upper - lower; }
-
-    constexpr bool Contains(T x) const { return lower <= x && x <= upper; }
-
-    constexpr bool Surrounds(T x) const { return lower < x && x < upper; }
+    constexpr bool Surrounds(T x) const noexcept { return lower < x && x < upper; }
 
     constexpr T clamp(T number) const {
         if (number < lower) return lower;
         if (number > upper) return upper;
         return number;
+    }
+
+    constexpr Interval expand(T delta) const {
+        auto padding = delta / 2;
+        return {lower - padding, upper + padding};
     }
 
     static constexpr Interval Empty() { return {PositiveInfinity(), NegativeInfinity()}; }
@@ -62,7 +74,10 @@ struct std::formatter<Math::Interval<T>> {
 };
 
 /* Aliases */
-using Interval = Math::Interval<float>;
+template <Math::Number T>
+using Interval = Math::Interval<T>;
+
+using fInterval = Math::Interval<float>;
 using dInterval = Math::Interval<double>;
 using uInterval = Math::Interval<std::uint32_t>;
 using iInterval = Math::Interval<std::int32_t>;

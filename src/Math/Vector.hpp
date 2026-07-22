@@ -499,6 +499,21 @@ struct std::formatter<Math::Vector<T, N>> {
 };
 
 /** Aliases */
+template <Math::Number T>
+using Vector3 = Math::Vector3D<T>;
+
+template <Math::Number T>
+using Vector2 = Math::Vector2D<T>;
+
+template <Math::Number T>
+using Point3 = Math::Vector3D<T>;
+
+template <Math::Number T>
+using Point2 = Math::Vector2D<T>;
+
+template <Math::Number T>
+using Color = Math::Vector3D<T>;
+
 using iVector2 = Math::Vector2D<std::int32_t>;
 using iVector3 = Math::Vector3D<std::int32_t>;
 
@@ -508,8 +523,8 @@ using uVector3 = Math::Vector3D<std::uint32_t>;
 using dVector2 = Math::Vector2D<double>;
 using dVector3 = Math::Vector3D<double>;
 
-using Vector2 = Math::Vector2D<float>;
-using Vector3 = Math::Vector3D<float>;
+using fVector2 = Math::Vector2D<float>;
+using fVector3 = Math::Vector3D<float>;
 
 using iPoint2 = Math::Point2D<std::int32_t>;
 using iPoint3 = Math::Point3D<std::int32_t>;
@@ -520,8 +535,8 @@ using uPoint3 = Math::Point3D<std::uint32_t>;
 using dPoint2 = Math::Point2D<double>;
 using dPoint3 = Math::Point3D<double>;
 
-using Point2 = Math::Point2D<float>;
-using Point3 = Math::Point3D<float>;
+using fPoint2 = Math::Point2D<float>;
+using fPoint3 = Math::Point3D<float>;
 
-using Color = Math::Color3D<float>;
+using fColor = Math::Color3D<float>;
 using dColor = Math::Color3D<double>;
