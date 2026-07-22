@@ -9,17 +9,21 @@
 
 class Sphere {
 private:
-    dPoint3 center_;
+    dRay center_;
     f64 radius_;
     Material material_;
 
 public:
-    Sphere(const dPoint3 &center, f64 radius, Material material_)
-        : center_{center}, radius_{std::fmax(0, radius)}, material_{material_} {}
+    Sphere(const dPoint3 &static_center, f64 radius, Material material_)
+        : center_{static_center, dVector3{0, 0, 0}}, radius_{std::fmax(0, radius)}, material_{material_} {}
+
+    Sphere(const dPoint3 &center1, const dPoint3 &center2, f64 radius, Material material_)
+        : center_{center1, center2 - center1}, radius_{std::fmax(0, radius)}, material_{material_} {}
 
     /* Hit function that solves quadratic with dot_product(direction, origin center)->double */
     constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const {
-        dVector3 origin_center = center_ - ray.origin;
+        dPoint3 current_center = center_.At(ray.time);
+        dVector3 origin_center = current_center - ray.origin;
         f64 a = ray.direction.MagnitudeSquared();
         f64 h = dVector3::DotProduct(ray.direction, origin_center);
         f64 c = origin_center.MagnitudeSquared() - radius_ * radius_;
@@ -40,7 +44,7 @@ public:
         temp_record.distance = root;
         temp_record.end_point = ray.At(temp_record.distance);
 
-        dVector3 outward_normal = (temp_record.end_point - center_) / radius_;
+        dVector3 outward_normal = (temp_record.end_point - current_center) / radius_;
         temp_record.SetFrontfaceNormal(ray, outward_normal);
         temp_record.material_view = &material_;
 

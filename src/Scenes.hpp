@@ -79,16 +79,19 @@ inline World InitiateManySphereScene() {
                     /* diffuse */
                     auto albedo = dColor::GenerateRandomVector() * dColor::GenerateRandomVector();
                     sphere_material = Material{std::in_place_type<Lambertian>, albedo};
+                    auto center2 = center + dVector3{0, Rand::GenerateRandomNumber<f64>(0, 0.5), 0};
+                    world.Add(Sphere{center, center2, Radius{0.2}, sphere_material});
                 } else if (choose_material < 0.95) {
                     /* metal */
                     auto albedo = dColor::GenerateRandomVector(0.5, 1);
                     auto fuzz = Rand::GenerateRandomNumber<f64>(0, 0.5);
                     sphere_material = Material{std::in_place_type<Metal>, albedo, fuzz};
+                    world.Add(Sphere{center, Radius{0.2}, sphere_material});
                 } else {
                     /* glass */
                     sphere_material = Material{std::in_place_type<Dielectric>, RefractionIndex{1.5}};
+                    world.Add(Sphere{center, Radius{0.2}, sphere_material});
                 }
-                world.Add(Sphere{center, Radius{0.2}, sphere_material});
             }
         }
     }

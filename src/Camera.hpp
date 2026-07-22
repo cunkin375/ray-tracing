@@ -10,7 +10,7 @@ public:
     f64 aspect_ratio{16.0 / 9.0};
     std::size_t image_width{400};
     std::size_t samples_per_pixel{10};
-    std::size_t max_depth{50};
+    std::size_t max_depth{10};
 
     f64 vertical_fov{90};
     dPoint3 look_from{0, 0, 0};
