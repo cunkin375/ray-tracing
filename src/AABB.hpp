@@ -40,8 +40,8 @@ public:
     }
 
     std::size_t LongestAxis() const {
-        if (x.Size > y.Size()) return x.Size() > z.size() ? 0 : 2;
-        else return y.Size() > z.size() ? 1 : 2;
+        if (x.Size() > y.Size()) return x.Size() > z.Size() ? 0 : 2;
+        else return y.Size() > z.Size() ? 1 : 2;
     }
 
     // NOTE: typing here might change later

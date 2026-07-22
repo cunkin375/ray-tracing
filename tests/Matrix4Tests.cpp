@@ -65,8 +65,8 @@ TEST(Matrix4, Multiply) {
 }
 
 TEST(Matrix4, LookAt) {
-    auto view = Matrix4::LookAt(/*Eye*/ Vector3{0.0f, 1.0f, 3.0f}, /*LookAt*/ Vector3{0.0f, 0.0f, 0.0f},
-                                /*Up*/ Vector3{0.0f, 1.0f, 0.0f});
+    auto view = Matrix4::LookAt(/*Eye*/ fVector3{0.0f, 1.0f, 3.0f}, /*LookAt*/ fVector3{0.0f, 0.0f, 0.0f},
+                                /*Up*/ fVector3{0.0f, 1.0f, 0.0f});
     auto expected =
         glm::lookAt(glm::vec3{0.0f, 1.0f, 3.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
     AssertMatricesEqual(view, expected);

@@ -51,7 +51,7 @@ public:
     template <typename Shape>
     void Add(Shape object) {
         std::get<std::vector<Shape>>(object_pools).push_back(std::move(object));
-        bounding_box_ = AABB{bounding_box_, object->bounding_box};
+        bounding_box_ = AABB{bounding_box_, object.BoundingBox()};
         num_objects++;
     }
 
@@ -79,7 +79,7 @@ public:
         return hit_anything ? std::optional{return_record} : std::nullopt;
     }
 
-    std::vector<HittableReference> BuildReferenceVector(const auto &object_pools) {
+    std::vector<HittableReference> BuildReferenceVector(const auto &object_pools) const {
         auto references = std::vector<HittableReference>{};
         auto pool_index = std::size_t{0};
 

@@ -80,7 +80,6 @@ public:
 
 template <typename... ShapeArgs>
 class BoundingVolumeHierarchy {
-    using BVH = BoundingVolumeHierarchy<ShapeArgs...>;
 
 private:
     std::vector<HittableReference> references_;
@@ -91,7 +90,7 @@ private:
 
 public:
     BoundingVolumeHierarchy(const HittableList<ShapeArgs...> &world)
-        : references_{BuildRefs(world.object_pools)}, dispatch_{world.object_pools},
+        : references_{world.BuildReferenceVector(world.object_pools)}, dispatch_{world.object_pools},
           shape_pools_{world.object_pools} {
         root_ = std::make_unique<BVH_Node>(references_, 0, references_.size());
     }
@@ -100,3 +99,6 @@ public:
         return root_->Hit(ray, interval, references_, dispatch_);
     }
 };
+
+template <typename... ShapeArgs>
+using BVH = BoundingVolumeHierarchy<ShapeArgs...>;

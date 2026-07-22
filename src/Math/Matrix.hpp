@@ -53,15 +53,15 @@ public:
     /* matrix <=> matrix */
     [[nodiscard]] friend constexpr bool operator<=>(const Matrix4D &left_matrix, const Matrix4D &right_matrix) = default;
 
-    constexpr Matrix4D(Vector3 translation)
+    constexpr Matrix4D(fVector3 translation)
         : data_{1.0f, 0.0f, 0.0f, 0.0f, 0.0f,          1.0f,          0.0f,          0.0f,
                 0.0f, 0.0f, 1.0f, 0.0f, translation.x, translation.y, translation.z, 1.0f} {}
 
     // TODO: make this constexpr? Not a priority
-    static constexpr Matrix4D LookAt(const Vector3 &eye, const Vector3 &look_at, const Vector3 &up) {
-        const auto forward = Vector3::Normalize(eye - look_at);
-        const auto right = Vector3::CrossProduct(up, forward).Normalize();
-        const auto true_up = Vector3::CrossProduct(forward, right).Normalize();
+    static constexpr Matrix4D LookAt(const fVector3 &eye, const fVector3 &look_at, const fVector3 &up) {
+        const auto forward = fVector3::Normalize(eye - look_at);
+        const auto right = fVector3::CrossProduct(up, forward).Normalize();
+        const auto true_up = fVector3::CrossProduct(forward, right).Normalize();
         const auto matrix = Matrix4D{{right.x, true_up.x, forward.x, 0.0f, right.y, true_up.y, forward.y, 0.0f,
                                 right.z, true_up.z, forward.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}};
         return matrix * Matrix4D{-eye};

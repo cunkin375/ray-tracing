@@ -23,5 +23,5 @@ public:
     AABB<f64> BoundingBox() const noexcept { return bounding_box_; };
 
     /* Hit function that solves quadratic with dot_product(direction, origin center)->double */
-    constexpr std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const;
+    std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval) const;
 };

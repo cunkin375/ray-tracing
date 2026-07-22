@@ -2,9 +2,9 @@
 #include "Material.hpp"
 #include "Math/Random.hpp"
 
-#include "Sphere.hpp"
+#include "BVH.hpp"
 #include "Hittable.hpp"
-
+#include "Sphere.hpp"
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
@@ -59,7 +59,7 @@ inline World InitiateTwoSphereScene() {
     return world;
 }
 
-inline World InitiateManySphereScene() {
+inline BVH<Sphere> InitiateManySphereScene() {
     auto world = World{};
 
     auto ground_object =
@@ -107,7 +107,9 @@ inline World InitiateManySphereScene() {
     auto material3 = Material{std::in_place_type<Metal>, dColor{0.7, 0.6, 0.5}, Reflection{0.0}};
     world.Add(Sphere{dPoint3{4, 1, 0}, Radius{1.0}, material3});
 
-    return world;
+    auto BVH_world = BVH{world};
+
+    return BVH_world;
 }
 
 } // namespace Scenes

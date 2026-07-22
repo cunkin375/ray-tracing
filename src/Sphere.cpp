@@ -1,8 +1,6 @@
-#pragma once
-
 #include "Sphere.hpp"
 
-#include "AxisAlignedBoundingBox.hpp"
+#include "AABB.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"
 
@@ -27,7 +25,7 @@ Sphere::Sphere(const dPoint3 &center1, const dPoint3 &center2, f64 radius, Mater
 }
 
 /* Hit function that solves quadratic with dot_product(direction, origin center)->double */
-constexpr std::optional<HitRecord> Sphere::Hit(const dRay &ray, dInterval ray_interval) const {
+std::optional<HitRecord> Sphere::Hit(const dRay &ray, dInterval ray_interval) const {
     dPoint3 current_center = center_.At(ray.time);
     dVector3 origin_center = current_center - ray.origin;
     f64 a = ray.direction.MagnitudeSquared();
