@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "Math/Random.hpp"
@@ -59,7 +61,7 @@ inline World InitiateTwoSphereScene() {
     return world;
 }
 
-inline BVH<Sphere> InitiateManySphereScene() {
+inline World InitiateManySphereScene() {
     auto world = World{};
 
     auto ground_object =
@@ -109,7 +111,7 @@ inline BVH<Sphere> InitiateManySphereScene() {
 
     auto BVH_world = BVH{world};
 
-    return BVH_world;
+    return world;
 }
 
 } // namespace Scenes

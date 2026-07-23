@@ -5,3 +5,4 @@ vendor/googletest
 .clangd
 AutoBuildAndRun.ps1
 image.ppm
+image2.ppm
