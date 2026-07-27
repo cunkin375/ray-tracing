@@ -61,7 +61,7 @@ inline World InitiateTwoSphereScene() {
     return world;
 }
 
-inline World InitiateManySphereScene() {
+inline BVH<Sphere> InitiateManySphereScene() {
     auto world = World{};
 
     auto ground_object =
@@ -111,7 +111,7 @@ inline World InitiateManySphereScene() {
 
     auto BVH_world = BVH{world};
 
-    return world;
+    return BVH_world;
 }
 
 } // namespace Scenes

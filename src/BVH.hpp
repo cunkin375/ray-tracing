@@ -52,7 +52,7 @@ public:
                                  const std::vector<HittableReference> &references,
                                  const DispatchTable<ShapeArgs...> &dispatch) const {
         // if we miss this node, skip it
-        // this branch is the entire season ~600 lines were either added or refactored
+        // this branch is the entire season ~600 lines were changed
         if (!bounding_box_.Hit(ray, ray_interval)) return std::nullopt;
 
         if (is_leaf_) {
@@ -71,8 +71,6 @@ public:
         auto hit_left = left_->Hit(ray, ray_interval, references, dispatch);
 
         // skip if left has hit something near
-        // BUG: this is causing problems
-        // - Causes big bottom sphere to be rendered on top of everything
         auto hit_right = right_->Hit(
             ray, dInterval{ray_interval.lower, hit_left ? hit_left->distance : ray_interval.upper},
             references, dispatch);

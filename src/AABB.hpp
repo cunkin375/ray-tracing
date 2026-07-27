@@ -32,7 +32,6 @@ public:
         z = Interval<T>(box_0.z, box_1.z);
     }
 
-    // ok big bro... if it makes you compile...
     constexpr const Interval<T> &AxisInterval(std::size_t i) const {
         if (i == 0) return x;
         if (i == 1) return y;

@@ -12,7 +12,7 @@
 Sphere::Sphere(const dPoint3 &static_center, f64 radius, Material material_)
     : center_{static_center, dVector3{0, 0, 0}}, radius_{std::fmax(0, radius)}, material_{material_} {
     auto radius_vector = dVector3{radius, radius, radius};
-    bounding_box_ = AABB{static_center - radius_vector, static_center - radius_vector};
+    bounding_box_ = AABB{static_center - radius_vector, static_center + radius_vector};
 }
 
 // moving sphere
