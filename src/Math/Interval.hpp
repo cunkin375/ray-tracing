@@ -21,7 +21,7 @@ public:
 
     constexpr Interval(const Interval &left, const Interval&right) {
         lower = left.lower <= right.lower ? left.lower : right.lower;
-        upper = left.upper <= right.upper ? left.upper : right.upper;
+        upper = left.upper >= right.upper ? left.upper : right.upper;
     }
 
     static constexpr T NegativeInfinity() noexcept {
