@@ -6,3 +6,4 @@ vendor/googletest
 AutoBuildAndRun.ps1
 image.ppm
 image2.ppm
+.~lock.image.ppm#
