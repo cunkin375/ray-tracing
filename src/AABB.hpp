@@ -33,6 +33,7 @@ public:
     }
 
     constexpr const Interval<T> &AxisInterval(std::size_t i) const {
+        assert(0 <= i && i <= 2 && "AxisAlignedBoundingBox::AxisInterval requires argument between [0, 2]!");
         if (i == 0) return x;
         if (i == 1) return y;
         return z;
