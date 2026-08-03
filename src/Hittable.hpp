@@ -18,9 +18,11 @@ struct HitRecord {
 public:
     dPoint3 end_point;
     dVector3 normal;
-    f64 distance;
-    bool front_face;
     const Material *material_view;
+    f64 distance;
+    f64 u;
+    f64 v;
+    bool front_face;
 
 public:
     /* Here, the side of a hittable surface from the persepective of the ray is decided at geometry time */
@@ -134,7 +136,7 @@ struct DispatchTable {
     }
 
     constexpr std::optional<HitRecord> Hit(const HittableReference &reference, const dRay &ray,
-                                 const dInterval interval) const {
+                                           const dInterval interval) const {
         return hit_functions[reference.pool_index](pool_pointers[reference.pool_index],
                                                    reference.object_index, ray, interval);
     }
