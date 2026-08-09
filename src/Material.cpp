@@ -27,8 +27,9 @@ std::optional<ScatterRecord> Lambertian::Scatter(const dRay &ray_in, const HitRe
     // Uniform Lambertian Reflection
     // dVector3 scatter_direction = dVector3::RandomUnitVectorOnHemisphere(surface_hit_normal);
     if (scatter_direction.HasNearZeroFloatPointPrecision()) { scatter_direction = record.normal; }
-    return ScatterRecord{Attenuation{albedo_},
-                         ScatteredRay{record.end_point, scatter_direction, ray_in.time}};
+    return ScatterRecord{
+        Attenuation{texture_.Value(record.u_texture_coord, record.v_texture_coord, record.end_point)},
+        ScatteredRay{record.end_point, scatter_direction, ray_in.time}};
 }
 
 /*** Metal Material functions ***/
@@ -49,8 +50,8 @@ std::optional<ScatterRecord> Dielectric::Scatter(const dRay &ray_in, const HitRe
     auto direction = dVector3{};
     bool cannot_refract = final_refraction_index * sin_theta > 1.0;
 
-    if (cannot_refract ||
-        Reflectance(cosine_theta, final_refraction_index) > Math::Rand::GenerateRandomNormalizedNumber<f64>()) {
+    if (cannot_refract || Reflectance(cosine_theta, final_refraction_index) >
+                              Math::Rand::GenerateRandomNormalizedNumber<f64>()) {
         direction = dVector3::ReflectFromSurfaceNormal(unit_direction, record.normal);
     } else {
         direction = dVector3::RefractFromSurfaceNormal(unit_direction, record.normal, final_refraction_index);

@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "Ray.hpp"
+#include "Texture.hpp"
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
@@ -17,12 +18,13 @@ struct ScatterRecord {
 
 struct Lambertian {
 private:
-    dColor albedo_{0.5};
+    Texture texture_{};
 
 public:
     Lambertian() = default;
 
-    Lambertian(const dColor &albedo) : albedo_{albedo} {}
+    Lambertian(const dColor &albedo) : texture_{albedo} {}
+    Lambertian(const Texture &texture) : texture_{texture} {}
 
     std::optional<ScatterRecord> Scatter(const dRay &ray_in, const HitRecord &record) const;
 };

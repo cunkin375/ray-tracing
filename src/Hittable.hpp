@@ -20,8 +20,8 @@ public:
     dVector3 normal;
     const Material *material_view;
     f64 distance;
-    f64 u;
-    f64 v;
+    f64 u_texture_coord;
+    f64 v_texture_coord;
     bool front_face;
 
 public:

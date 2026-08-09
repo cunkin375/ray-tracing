@@ -1,7 +1,11 @@
 #pragma once
 
+#include <variant>
+
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
+
+class Texture;
 
 namespace Textures {
 
@@ -10,6 +14,8 @@ private:
     dColor albedo_;
 
 public:
+    SolidColor() = default;
+
     SolidColor(const dColor &albedo) : albedo_{albedo} {}
 
     SolidColor(f64 red, f64 green, f64 blue) : SolidColor{dColor{red, green, blue}} {}
@@ -25,10 +31,10 @@ private:
     U odd_texture_;
 
 public:
-    Checker(f64 scale, T even_texture, U odd_texture)
-        : inverse_scale_{1.0 / scale}, even_texture_{even_texture}, odd_texture_{odd_texture} {}
+    Checker() = default;
 
-    Checker(f64 scale, const dColor &c1, const dColor &c2) : Checker{scale, c1, c2} {}
+    Checker(f64 scale, const T &even_texture, const U &odd_texture)
+        : inverse_scale_{1.0 / scale}, even_texture_{even_texture}, odd_texture_{odd_texture} {}
 
     dColor Value(f64 u, f64 v, const dPoint3 &point) const noexcept {
         auto x_integer = i32(std::floor(inverse_scale_ * point.x));
@@ -41,4 +47,24 @@ public:
     }
 };
 
+using TextureVariant = std::variant<SolidColor, Checker<SolidColor>>;
+
 } // namespace Textures
+
+class Texture {
+private:
+    Textures::TextureVariant data_;
+
+public:
+    Texture() = default;
+
+    template <typename T>
+    Texture(T &&data) : data_{std::forward<T>(data)} {}
+
+    // NOTE: this might not be needed
+    Texture(const dColor &data) : data_{Textures::SolidColor{data}} {}
+
+    dColor Value(f64 u, f64 v, dPoint3 point) const {
+        return std::visit([&](const auto &texture) { return texture.Value(u, v, point); }, data_);
+    }
+};

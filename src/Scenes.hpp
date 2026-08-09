@@ -7,6 +7,7 @@
 #include "BVH.hpp"
 #include "Hittable.hpp"
 #include "Sphere.hpp"
+#include "Texture.hpp"
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
@@ -16,6 +17,7 @@ namespace Scenes {
 using Radius = f64;
 using Reflection = f64;
 using RefractionIndex = f64;
+using Scale = f64;
 
 inline World InitiateThreeSphereScene() {
     auto world = World{};
@@ -64,8 +66,11 @@ inline World InitiateTwoSphereScene() {
 inline BVH<Sphere> InitiateManySphereScene() {
     auto world = World{};
 
-    auto ground_object =
-        Sphere{dPoint3{0, -1000, 0}, Radius{1000}, Material{std::in_place_type<Lambertian>, dColor{0.5}}};
+    using namespace Textures;
+    auto ground_object = Sphere{
+        dPoint3{0, -1000, 0}, Radius{1000},
+        Material{std::in_place_type<Lambertian>,
+                 Textures::Checker<SolidColor>{Scale{1.0}, dColor{0.2, 0.3, 0.1}, dColor{0.9, 0.9, 0.9}}}};
 
     world.Add(ground_object);
 
@@ -83,8 +88,12 @@ inline BVH<Sphere> InitiateManySphereScene() {
                     /* diffuse */
                     auto albedo = dColor::GenerateRandomVector() * dColor::GenerateRandomVector();
                     sphere_material = Material{std::in_place_type<Lambertian>, albedo};
-                    auto center2 = center + dVector3{0, Rand::GenerateRandomNumber<f64>(0, 0.5), 0};
-                    world.Add(Sphere{center, center2, Radius{0.2}, sphere_material});
+                    world.Add(Sphere{center, Radius{0.2}, sphere_material});
+
+                    // These add motion blur for a ball moving from center to center2
+                    // auto center2 = center + dVector3{0, Rand::GenerateRandomNumber<f64>(0, 0.5), 0};
+                    // world.Add(Sphere{center, center2, Radius{0.2}, sphere_material});
+
                 } else if (choose_material < 0.95) {
                     /* metal */
                     auto albedo = dColor::GenerateRandomVector(0.5, 1);
