@@ -104,6 +104,9 @@ public:
         root_ = std::make_unique<BVH_Node>(references_, 0, references_.size());
     }
 
+    BoundingVolumeHierarchy(BoundingVolumeHierarchy &&other) = delete;
+    BoundingVolumeHierarchy &operator=(BoundingVolumeHierarchy &&other) = delete;
+
     std::optional<HitRecord> Hit(const dRay &ray, dInterval interval) const noexcept {
         return root_->Hit(ray, interval, references_, dispatch_);
     }
