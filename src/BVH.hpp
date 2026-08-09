@@ -81,7 +81,6 @@ public:
 
 template <typename... ShapeArgs>
 class BoundingVolumeHierarchy {
-
 private:
     std::tuple<std::vector<ShapeArgs>...> shape_pools_;
     std::vector<HittableReference> references_;

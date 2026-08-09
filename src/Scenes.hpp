@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "Math/Random.hpp"
@@ -11,13 +13,22 @@
 
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
-#include <utility>
 
 namespace Scenes {
 using Radius = f64;
 using Reflection = f64;
 using RefractionIndex = f64;
 using Scale = f64;
+using AspectRatio = f64;
+using VerticalFOV = f64;
+using ImageWidth = std::size_t;
+using SamplesPerPixel = std::size_t;
+
+template <typename WorldType>
+struct RenderContext {
+    WorldType world;
+    Camera camera;
+};
 
 inline World InitiateThreeSphereScene() {
     auto world = World{};
@@ -63,7 +74,8 @@ inline World InitiateTwoSphereScene() {
     return world;
 }
 
-inline BVH<Sphere> InitiateManySphereScene() {
+inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
+    // Init World
     auto world = World{};
 
     using namespace Textures;
@@ -118,9 +130,17 @@ inline BVH<Sphere> InitiateManySphereScene() {
     auto material3 = Material{std::in_place_type<Metal>, dColor{0.7, 0.6, 0.5}, Reflection{0.0}};
     world.Add(Sphere{dPoint3{4, 1, 0}, Radius{1.0}, material3});
 
-    auto BVH_world = BVH{world};
+    // Init Camera
+    auto camera = Camera{AspectRatio{16.0 / 9.0}, ImageWidth{1080}, SamplesPerPixel{25}, VerticalFOV{20}};
 
-    return BVH_world;
+    camera.look_from = dPoint3{13, 2, 3};
+    camera.look_at = dPoint3{0, 0, 0};
+    camera.vertical_up = dVector3{0, 1, 0};
+
+    camera.defocus_angle = 0.6;
+    camera.focus_distance = 10.0;
+
+    return {BVH{world}, camera};
 }
 
 } // namespace Scenes
