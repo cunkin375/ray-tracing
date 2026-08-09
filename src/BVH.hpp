@@ -50,7 +50,7 @@ public:
     template <typename... ShapeArgs>
     std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval,
                                  const std::vector<HittableReference> &references,
-                                 const DispatchTable<ShapeArgs...> &dispatch) const {
+                                 const HitFunctionDispatchTable<ShapeArgs...> &dispatch) const {
         // if we miss this node, skip it
         // this branch is the entire season ~600 lines were changed
         if (!bounding_box_.Hit(ray, ray_interval)) return std::nullopt;
@@ -79,13 +79,23 @@ public:
     }
 };
 
+// Takes in hittable Shape arguments from an already built HittableList<ShapeArgs...> object, copies the
+// list's Shape type vector pools, and sorts them into BVH Nodes
+//
+// std::vector<HittableReference> stores information to look up objects within type pools, and bounding box
+// information for that object
+//
+// HitFunctionDispatchTable takes in a HittableReference and calls the Type's appropriate Hit function from
+// shape_pools_, its a lookup table
+//
+// Complicated but saves significant time on the ray tracing hot path
 template <typename... ShapeArgs>
 class BoundingVolumeHierarchy {
 private:
     std::tuple<std::vector<ShapeArgs>...> shape_pools_;
     std::vector<HittableReference> references_;
     std::unique_ptr<BVH_Node> root_;
-    DispatchTable<ShapeArgs...> dispatch_;
+    HitFunctionDispatchTable<ShapeArgs...> dispatch_;
 
 public:
     BoundingVolumeHierarchy(const HittableList<ShapeArgs...> &world)

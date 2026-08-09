@@ -117,11 +117,11 @@ std::optional<HitRecord> DispatchHit(const void *pool_pointer, std::size_t objec
 }
 
 template <typename... ShapeArgs>
-struct DispatchTable {
+struct HitFunctionDispatchTable {
     std::array<const void *, sizeof...(ShapeArgs)> pool_pointers;
     std::array<HitFunction, sizeof...(ShapeArgs)> hit_functions;
 
-    constexpr DispatchTable(const std::tuple<std::vector<ShapeArgs>...> &pools) {
+    constexpr HitFunctionDispatchTable(const std::tuple<std::vector<ShapeArgs>...> &pools) {
         // build pool_pointers
         auto index = std::size_t{0};
         std::apply(
