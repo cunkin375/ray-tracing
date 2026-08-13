@@ -19,7 +19,7 @@ public:
 
     constexpr Interval(T lower, T upper) : lower{lower}, upper{upper} {}
 
-    constexpr Interval(const Interval &left, const Interval&right) {
+    constexpr Interval(const Interval &left, const Interval &right) {
         lower = left.lower <= right.lower ? left.lower : right.lower;
         upper = left.upper >= right.upper ? left.upper : right.upper;
     }
@@ -50,6 +50,12 @@ public:
         if (number < lower) return lower;
         if (number > upper) return upper;
         return number;
+    }
+
+    static constexpr T Clamp(T number, T low, T high) {
+        if (number < low) return low;
+        if (number > high) return number;
+        return high - 1;
     }
 
     constexpr Interval Expand(T delta) const {

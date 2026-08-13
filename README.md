@@ -8,6 +8,5 @@
 ### Requires glm and GoogleTest to compile
 - GoogleTest is automatically cloned and built by cmake
 - glm header can be added from https://github.com/g-truc/glm
-- These may be removed in the future
 
 ### Written in C++26

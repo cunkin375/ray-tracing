@@ -3,7 +3,7 @@
 #include "Util/Aliases.hpp"
 
 int main() {
-    auto [world, camera] = Scenes::InitiateManySphereScene();
+    auto [world, camera] = Scenes::InitiateTwoCheckeredSpheres();
 
     // camera.RenderPass(world);
     camera.AntialiasingRenderPass(world);

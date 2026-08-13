@@ -3,7 +3,10 @@
 #include <variant>
 
 #include "Math/Vector.hpp"
+#include "Math/Interval.hpp"
 #include "Util/Aliases.hpp"
+
+#include "STB_Image.hpp"
 
 class Texture;
 
@@ -47,13 +50,39 @@ public:
     }
 };
 
-using TextureVariant = std::variant<SolidColor, Checker<SolidColor>>;
+class ImageTexture {
+private:
+    Image image;
+
+public:
+    ImageTexture(const char *filename) : image{filename} {}
+
+    dColor Value(f64 u, f64 v, const dPoint3 &point) const {
+        // cyan color for debugging missing texture
+        if (image.Height() <= 0) return dColor{0, 1, 1};
+
+        // clamp texture coords to [0, 1] * [1, 0]
+        u = Math::Interval<f64>{0, 1}.Clamp(u);
+        v = 1.0 - Math::Interval<f64>{0, 1}.Clamp(v);
+
+        auto i = i32(u * image.Width());
+        auto j = i32(v * image.Height());
+        auto pixel = image.PixelData(i, j);
+
+        auto color_scale = 1.0 / 255.0;
+
+        // d pointer arithmetic based on the color scale to visit rgb pixel information in image
+        return dColor{color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[3]};
+    }
+};
+
+using Variant = std::variant<SolidColor, Checker<SolidColor>>;
 
 } // namespace Textures
 
 class Texture {
 private:
-    Textures::TextureVariant data_;
+    Textures::Variant data_;
 
 public:
     Texture() = default;

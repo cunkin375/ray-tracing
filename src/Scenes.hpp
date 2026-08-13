@@ -143,4 +143,25 @@ inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
     return {BVH{world}, camera};
 }
 
+inline RenderContext<BVH<Sphere>> InitiateTwoCheckeredSpheres() {
+    auto world = World{};
+
+    using namespace Textures;
+    auto checker_pattern =
+        Textures::Checker<SolidColor>{Scale{0.32}, dColor{0.2, 0.3, 0.1}, dColor{0.9, 0.9, 0.9}};
+
+    world.Add(Sphere{dPoint3{0, -10, 0}, 10, Material{std::in_place_type<Lambertian>, checker_pattern}});
+    world.Add(Sphere{dPoint3{0, 10, 0}, 10, Material{std::in_place_type<Lambertian>, checker_pattern}});
+
+    auto camera = Camera{AspectRatio{16.0 / 9.0}, ImageWidth{1080}, SamplesPerPixel{25}, VerticalFOV{20}};
+
+    camera.look_from = dPoint3{13, 2, 3};
+    camera.look_at = dPoint3{0, 0, 0};
+    camera.vertical_up = dVector3{0, 1, 0};
+
+    camera.defocus_angle = 0;
+
+    return {world, camera};
+}
+
 } // namespace Scenes
