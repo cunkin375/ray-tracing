@@ -46,13 +46,13 @@ public:
 
     constexpr bool Surrounds(T x) const noexcept { return lower < x && x < upper; }
 
-    constexpr T clamp(T number) const {
+    constexpr T Clamp(T number) const {
         if (number < lower) return lower;
         if (number > upper) return upper;
         return number;
     }
 
-    constexpr Interval expand(T delta) const {
+    constexpr Interval Expand(T delta) const {
         auto padding = delta / 2;
         return {lower - padding, upper + padding};
     }
