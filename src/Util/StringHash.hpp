@@ -5,11 +5,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
-// Functor functor functor!!! operator() lets StringHash behave like a function object (like lambdas)
 // Overloads allow for heterogeneous lookup
 // - dynamic copies will not be made during lookup with a const char *, string_view, or string regardless of
 // declared type
-struct StringHash {
+struct StringHash
+{
     using is_transparent = void;
     std::size_t operator()(const char *str) const { return std::hash<std::string_view>{}(str); }
 

@@ -11,12 +11,14 @@
 
 struct HitRecord;
 
-struct ScatterRecord {
+struct ScatterRecord
+{
     dColor attenuation;
     dRay scattered_ray;
 };
 
-struct Lambertian {
+struct Lambertian
+{
 private:
     Texture texture_{};
 
@@ -29,7 +31,8 @@ public:
     std::optional<ScatterRecord> Scatter(const dRay &ray_in, const HitRecord &record) const;
 };
 
-struct Metal {
+struct Metal
+{
 private:
     dColor albedo_{0.5};
     f64 fuzz_{1.0};
@@ -44,7 +47,8 @@ public:
     std::optional<ScatterRecord> Scatter(const dRay &ray_in, const HitRecord &record) const;
 };
 
-struct Dielectric {
+struct Dielectric
+{
 private:
     // refractive index in vacuum or air, or the ratio of material's refractive index over refractive index of
     // the enclosing media

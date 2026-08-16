@@ -6,7 +6,8 @@
 #include "Util/Aliases.hpp"
 #include <memory>
 
-class BVH_Node {
+class BVH_Node
+{
 private:
     AABB<f64> bounding_box_;
     std::unique_ptr<BVH_Node> left_, right_;
@@ -15,7 +16,8 @@ private:
     bool is_leaf_{false};
 
 public:
-    BVH_Node(std::vector<HittableReference> &references, std::size_t start, std::size_t end) {
+    BVH_Node(std::vector<HittableReference> &references, std::size_t start, std::size_t end)
+    {
         // combine bounding box of given span
         auto combined = AABB<f64>{};
         for (auto i{start}; i < end; ++i) {
@@ -50,7 +52,8 @@ public:
     template <typename... ShapeArgs>
     std::optional<HitRecord> Hit(const dRay &ray, dInterval ray_interval,
                                  const std::vector<HittableReference> &references,
-                                 const HitFunctionDispatchTable<ShapeArgs...> &dispatch) const {
+                                 const HitFunctionDispatchTable<ShapeArgs...> &dispatch) const
+    {
         // if we miss this node, skip it
         // this branch is the entire season ~600 lines were changed
         if (!bounding_box_.Hit(ray, ray_interval)) return std::nullopt;
@@ -90,7 +93,8 @@ public:
 //
 // Complicated but saves significant time on the ray tracing hot path
 template <typename... ShapeArgs>
-class BoundingVolumeHierarchy {
+class BoundingVolumeHierarchy
+{
 private:
     std::tuple<std::vector<ShapeArgs>...> shape_pools_;
     std::vector<HittableReference> references_;
@@ -100,16 +104,14 @@ private:
 public:
     BoundingVolumeHierarchy(const HittableList<ShapeArgs...> &world)
         : shape_pools_{world.object_pools}, references_{world.BuildReferenceVector(world.object_pools)},
-          dispatch_{shape_pools_} {
-        root_ = std::make_unique<BVH_Node>(references_, 0, references_.size());
-    }
+          dispatch_{shape_pools_}
+    { root_ = std::make_unique<BVH_Node>(references_, 0, references_.size()); }
 
     BoundingVolumeHierarchy(BoundingVolumeHierarchy &&other) = delete;
     BoundingVolumeHierarchy &operator=(BoundingVolumeHierarchy &&other) = delete;
 
-    std::optional<HitRecord> Hit(const dRay &ray, dInterval interval) const noexcept {
-        return root_->Hit(ray, interval, references_, dispatch_);
-    }
+    std::optional<HitRecord> Hit(const dRay &ray, dInterval interval) const noexcept
+    { return root_->Hit(ray, interval, references_, dispatch_); }
 };
 
 template <typename... ShapeArgs>

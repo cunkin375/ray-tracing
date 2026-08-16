@@ -2,17 +2,19 @@
 
 #include <variant>
 
-#include "Math/Vector.hpp"
 #include "Math/Interval.hpp"
+#include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 
 #include "STB_Image.hpp"
 
 class Texture;
 
-namespace Textures {
+namespace Textures
+{
 
-class SolidColor {
+class SolidColor
+{
 private:
     dColor albedo_;
 
@@ -27,7 +29,8 @@ public:
 };
 
 template <typename T, typename U = T>
-class Checker {
+class Checker
+{
 private:
     f64 inverse_scale_;
     T even_texture_;
@@ -37,9 +40,12 @@ public:
     Checker() = default;
 
     Checker(f64 scale, const T &even_texture, const U &odd_texture)
-        : inverse_scale_{1.0 / scale}, even_texture_{even_texture}, odd_texture_{odd_texture} {}
+        : inverse_scale_{1.0 / scale}, even_texture_{even_texture}, odd_texture_{odd_texture}
+    {
+    }
 
-    dColor Value(f64 u, f64 v, const dPoint3 &point) const noexcept {
+    dColor Value(f64 u, f64 v, const dPoint3 &point) const noexcept
+    {
         auto x_integer = i32(std::floor(inverse_scale_ * point.x));
         auto y_integer = i32(std::floor(inverse_scale_ * point.y));
         auto z_integer = i32(std::floor(inverse_scale_ * point.z));
@@ -50,14 +56,16 @@ public:
     }
 };
 
-class ImageTexture {
+class ImageTexture
+{
 private:
     Image image;
 
 public:
     ImageTexture(const char *filename) : image{filename} {}
 
-    dColor Value(f64 u, f64 v, const dPoint3 &point) const {
+    dColor Value(f64 u, f64 v, const dPoint3 &point) const
+    {
         // cyan color for debugging missing texture
         if (image.Height() <= 0) return dColor{0, 1, 1};
 
@@ -80,7 +88,8 @@ using Variant = std::variant<SolidColor, Checker<SolidColor>>;
 
 } // namespace Textures
 
-class Texture {
+class Texture
+{
 private:
     Textures::Variant data_;
 
@@ -88,12 +97,15 @@ public:
     Texture() = default;
 
     template <typename T>
-    Texture(T &&data) : data_{std::forward<T>(data)} {}
+    Texture(T &&data) : data_{std::forward<T>(data)}
+    {
+    }
 
     // NOTE: this might not be needed
     Texture(const dColor &data) : data_{Textures::SolidColor{data}} {}
 
-    dColor Value(f64 u, f64 v, dPoint3 point) const {
+    dColor Value(f64 u, f64 v, dPoint3 point) const
+    {
         return std::visit([&](const auto &texture) { return texture.Value(u, v, point); }, data_);
     }
 };

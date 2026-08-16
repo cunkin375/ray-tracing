@@ -8,7 +8,8 @@
 // images/ subdirectory, then the _parent's_ images/ subdirectory, and then _that_
 // parent, on so on, for six levels up. If the image was not loaded successfully,
 // width() and height() will return 0.
-class Image {
+class Image
+{
 private:
     unsigned char *byte_data_{};
     float *file_data_{nullptr};

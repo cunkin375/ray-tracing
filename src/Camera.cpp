@@ -4,19 +4,26 @@
 // ======================================================================================================
 
 Camera::Camera(f64 _aspect_ratio, std::size_t _image_width)
-    : aspect_ratio{_aspect_ratio}, image_width{_image_width} {}
+    : aspect_ratio{_aspect_ratio}, image_width{_image_width}
+{
+}
 
 Camera::Camera(f64 _aspect_ratio, std::size_t _image_width, std::size_t _samples_per_pixel)
-    : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel} {}
+    : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel}
+{
+}
 
 Camera::Camera(f64 _aspect_ratio, std::size_t _image_width, std::size_t _samples_per_pixel, f64 _vertical_fov)
     : aspect_ratio{_aspect_ratio}, image_width{_image_width}, samples_per_pixel{_samples_per_pixel},
-      vertical_fov{_vertical_fov} {}
+      vertical_fov{_vertical_fov}
+{
+}
 
 // ==== PRIVATE METHODS
 // =====================================================================================================
 
-dRay Camera::GetRay(std::size_t i, std::size_t j) const {
+dRay Camera::GetRay(std::size_t i, std::size_t j) const
+{
     auto offset = SampleSquare();
     auto pixel_sample =
         pixel_00_location_ + ((i + offset.x) * pixel_delta_u_) + ((j + offset.y) * pixel_delta_v_);
@@ -25,18 +32,22 @@ dRay Camera::GetRay(std::size_t i, std::size_t j) const {
     auto ray_time = Math::Rand::GenerateRandomNormalizedNumber<f64>();
     return dRay{ray_origin, ray_direction, ray_time};
 }
-dPoint3 Camera::DefocusDiskSample() const {
+
+dPoint3 Camera::DefocusDiskSample() const
+{
     auto point = dVector2::GenerateRandomUnitVector();
     return camera_center_ + (point.x * defocus_disk_u) + (point.y * defocus_disk_v);
 }
 
-dVector3 Camera::SampleSquare() const {
+dVector3 Camera::SampleSquare() const
+{
     using namespace Math;
     return dVector3{Rand::GenerateRandomNormalizedNumber<f64>() - 0.5,
                     Rand::GenerateRandomNormalizedNumber<f64>() - 0.5, 0};
 }
 
-void Camera::InitializePass() {
+void Camera::InitializePass()
+{
     image_height_ = std::size_t(image_width / aspect_ratio);
     // image height must at least be 1
     image_height_ = (image_height_ < 1) ? 1 : image_height_;

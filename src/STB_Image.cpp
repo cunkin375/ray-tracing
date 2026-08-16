@@ -16,7 +16,8 @@
 // ==== PUBLIC METHODS
 // =========================================================================================================
 
-Image::Image(const char *image_filename) {
+Image::Image(const char *image_filename)
+{
     auto filename = std::string(image_filename);
     auto image_directory = std::getenv("IMAGES");
 
@@ -28,7 +29,8 @@ Image::Image(const char *image_filename) {
 
 Image::~Image() { ::STBI_FREE(file_data_); }
 
-bool Image::Load(const std::string &filename) {
+bool Image::Load(const std::string &filename)
+{
     auto num_bytes = bytes_per_pixel_;
     file_data_ = static_cast<float *>(
         ::stbi_loadf(filename.c_str(), &image_width_, &image_height_, &num_bytes, bytes_per_pixel_));
@@ -41,7 +43,8 @@ bool Image::Load(const std::string &filename) {
 int Image::Width() const noexcept { return (file_data_ == nullptr) ? 0 : image_width_; }
 int Image::Height() const noexcept { return (file_data_ == nullptr) ? 0 : image_height_; }
 
-const unsigned char *Image::PixelData(int x, int y) const noexcept {
+const unsigned char *Image::PixelData(int x, int y) const noexcept
+{
     static unsigned char magenta[] = {255, 0, 255};
     if (byte_data_ == nullptr) return magenta;
 
@@ -54,18 +57,21 @@ const unsigned char *Image::PixelData(int x, int y) const noexcept {
 // ==== PRIVATE METHODS
 // =========================================================================================================
 
-void Image::ConvertToBytes() {
+void Image::ConvertToBytes()
+{
     std::size_t total_bytes = image_width_ * image_height_ * bytes_per_pixel_;
     byte_data_ = new unsigned char[total_bytes];
 
     auto *byte_pointer = byte_data_;
     auto *file_pointer = file_data_;
-    for (auto i{0zu}; i < total_bytes; ++i, ++byte_pointer, ++file_pointer) {
+    for (auto i{0zu}; i < total_bytes; ++i, ++byte_pointer, ++file_pointer)
+    {
         *byte_pointer = FloatToByte(*file_pointer);
     }
 }
 
-unsigned char Image::FloatToByte(float value) {
+unsigned char Image::FloatToByte(float value)
+{
     if (value <= 0) return 0;
     if (1.0 <= value) return 255;
     return static_cast<unsigned char>(255.0 * value);

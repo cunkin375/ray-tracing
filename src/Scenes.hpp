@@ -14,7 +14,8 @@
 #include "Math/Vector.hpp"
 #include "Util/Aliases.hpp"
 
-namespace Scenes {
+namespace Scenes
+{
 using Radius = f64;
 using Reflection = f64;
 using RefractionIndex = f64;
@@ -25,12 +26,14 @@ using ImageWidth = std::size_t;
 using SamplesPerPixel = std::size_t;
 
 template <typename WorldType>
-struct RenderContext {
+struct RenderContext
+{
     WorldType world;
     Camera camera;
 };
 
-inline World InitiateThreeSphereScene() {
+inline World InitiateThreeSphereScene()
+{
     auto world = World{};
 
     auto center_sphere = Sphere{dPoint3{0, 0, -1.2}, Radius{0.5},
@@ -57,7 +60,8 @@ inline World InitiateThreeSphereScene() {
     return world;
 }
 
-inline World InitiateTwoSphereScene() {
+inline World InitiateTwoSphereScene()
+{
     auto world = World{};
 
     auto R = std::cos(std::numbers::pi / 4);
@@ -74,7 +78,8 @@ inline World InitiateTwoSphereScene() {
     return world;
 }
 
-inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
+inline RenderContext<BVH<Sphere>> InitiateManySphereScene()
+{
     // Init World
     auto world = World{};
 
@@ -86,17 +91,21 @@ inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
 
     world.Add(ground_object);
 
-    for (auto a{-11}; a < 11; ++a) {
-        for (auto b{-11}; b < 11; ++b) {
+    for (auto a{-11}; a < 11; ++a)
+    {
+        for (auto b{-11}; b < 11; ++b)
+        {
             using namespace Math;
             auto choose_material = Rand::GenerateRandomNumber<f64>();
             auto center = dPoint3{a + 0.9 * Rand::GenerateRandomNumber<f64>(), 0.2,
                                   b + 0.8 * Rand::GenerateRandomNumber<f64>()};
 
-            if ((center - dPoint3{4, 0.2, 0}).Magnitude() > 0.9) {
+            if ((center - dPoint3{4, 0.2, 0}).Magnitude() > 0.9)
+            {
                 auto sphere_material = Material{};
 
-                if (choose_material < 0.8) {
+                if (choose_material < 0.8)
+                {
                     /* diffuse */
                     auto albedo = dColor::GenerateRandomVector() * dColor::GenerateRandomVector();
                     sphere_material = Material{std::in_place_type<Lambertian>, albedo};
@@ -105,14 +114,17 @@ inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
                     // These add motion blur for a ball moving from center to center2
                     // auto center2 = center + dVector3{0, Rand::GenerateRandomNumber<f64>(0, 0.5), 0};
                     // world.Add(Sphere{center, center2, Radius{0.2}, sphere_material});
-
-                } else if (choose_material < 0.95) {
+                }
+                else if (choose_material < 0.95)
+                {
                     /* metal */
                     auto albedo = dColor::GenerateRandomVector(0.5, 1);
                     auto fuzz = Rand::GenerateRandomNumber<f64>(0, 0.5);
                     sphere_material = Material{std::in_place_type<Metal>, albedo, fuzz};
                     world.Add(Sphere{center, Radius{0.2}, sphere_material});
-                } else {
+                }
+                else
+                {
                     /* glass */
                     sphere_material = Material{std::in_place_type<Dielectric>, RefractionIndex{1.5}};
                     world.Add(Sphere{center, Radius{0.2}, sphere_material});
@@ -143,7 +155,8 @@ inline RenderContext<BVH<Sphere>> InitiateManySphereScene() {
     return {BVH{world}, camera};
 }
 
-inline RenderContext<BVH<Sphere>> InitiateTwoCheckeredSpheres() {
+inline RenderContext<BVH<Sphere>> InitiateTwoCheckeredSpheres()
+{
     auto world = World{};
 
     using namespace Textures;

@@ -5,28 +5,39 @@
 #include <print>
 #include <source_location>
 
-namespace Log {
+namespace Log
+{
 
-enum class Level { Debug, Info, Warn, Error, Fatal };
+enum class Level
+{
+    Debug,
+    Info,
+    Warn,
+    Error,
+    Fatal
+};
 
-constexpr const char *GetLevel(Level level) {
-    switch (level) {
-    case Level::Debug: return "DEBUG";
-    case Level::Info: return "INFO";
-    case Level::Warn: return "WARN";
-    case Level::Error: return "ERROR";
-    case Level::Fatal: return "FATAL";
-    default: return "UNKNOWN";
+constexpr const char *GetLevel(Level level)
+{
+    switch (level)
+    {
+        case Level::Debug: return "DEBUG";
+        case Level::Info: return "INFO";
+        case Level::Warn: return "WARN";
+        case Level::Error: return "ERROR";
+        case Level::Fatal: return "FATAL";
+        default: return "UNKNOWN";
     }
 }
 
 // use of deduction guides limits to a struct, which is whatever
 // struct that takes in some number of arguments, configurations for levels are defined later
 template <Level Lvl, typename... Args>
-struct Print {
+struct Print
+{
     Print(std::format_string<Args...> message, Args &&...args,
-          std::source_location location = std::source_location::current()) {
-
+          std::source_location location = std::source_location::current())
+    {
         std::println("[{}] {}:{} {}", GetLevel(Lvl),
                      std::filesystem::path{location.file_name()}.filename().string(), location.line(),
                      std::format(message, std::forward<Args>(args)...));

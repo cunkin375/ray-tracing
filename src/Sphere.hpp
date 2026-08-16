@@ -6,7 +6,8 @@
 
 #include "Util/Aliases.hpp"
 
-class Sphere {
+class Sphere
+{
 private:
     dRay center_;
     f64 radius_;

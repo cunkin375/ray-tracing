@@ -3,11 +3,20 @@
 #include <filesystem>
 #include <functional>
 
-class DirectoryWatcher {
-  public:
-    enum class FileAction { Modified, Created, Deleted, RenamedFrom, RenamedTo };
+class DirectoryWatcher
+{
+public:
+    enum class FileAction
+    {
+        Modified,
+        Created,
+        Deleted,
+        RenamedFrom,
+        RenamedTo
+    };
 
-    struct FileEvent {
+    struct FileEvent
+    {
         FileAction action;
         std::filesystem::path filepath;
     };
@@ -31,7 +40,7 @@ class DirectoryWatcher {
     void SetEnabled(bool enabled);
     bool IsEnabled() const;
 
-  private:
+private:
     struct Implementation;
     std::unique_ptr<Implementation> impl_;
 };

@@ -7,16 +7,17 @@
 
 #include <iostream>
 
-namespace ImageColor {
+namespace ImageColor
+{
 
-constexpr f64 LinearToGamma(f64 linear_component) {
-    if (linear_component > 0) {
-        return std::sqrt(linear_component);
-    }
+constexpr f64 LinearToGamma(f64 linear_component)
+{
+    if (linear_component > 0) return std::sqrt(linear_component);
     return 0.0;
 }
 
-constexpr void WriteColor(std::ostream &out, const dColor &pixel_color) {
+constexpr void WriteColor(std::ostream &out, const dColor &pixel_color)
+{
     auto r = LinearToGamma(pixel_color.r);
     auto g = LinearToGamma(pixel_color.g);
     auto b = LinearToGamma(pixel_color.b);
